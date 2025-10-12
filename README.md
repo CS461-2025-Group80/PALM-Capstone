@@ -5,9 +5,9 @@ An intelligent Autonomous Mobile Robot (AMR) platform designed to autonomously p
 ## Team
 
 **Team Members:**
-- Andrew Fief - fiefa@oregonstate.edu
-- Justice Peyton - peytonju@oregonstate.edu
-- Luke Gasgvarger - hashbarl@oregonstate.edu
+- Andrew Fief - ROLE TBD - fiefa@oregonstate.edu
+- Justice Peyton - ROLE TBD - peytonju@oregonstate.edu
+- Luke Gasgvarger - ROLE TBD - hashbarl@oregonstate.edu
 
 **Project Partner:** Rahul Khanna  
 **Teaching Assistant:** Yue Feiping
@@ -59,6 +59,9 @@ Track progress at: https://github.com/orgs/CS461-2025-Group80/projects/1
 3. **Hierarchical Control System**: HFSM-based automation for complex workflows
 4. **Teleoperation Interface**: AR/VR-enabled remote control system
 5. **Integrated System Demonstration**: Complete PALM platform validation
+
+## Project Management
+   Pending partner confirmation
 
 ## Contact
 
