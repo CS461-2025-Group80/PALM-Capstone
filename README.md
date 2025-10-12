@@ -33,6 +33,7 @@ The system features a "human-in-the-loop" operational model where the robot oper
 
 /
 ├── README.md
+├── .gitignore
 
 ## Communication
 
