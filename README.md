@@ -31,8 +31,8 @@ The system features a "human-in-the-loop" operational model where the robot oper
 
 ## Repository Structure
 
-/
 ├── README.md
+
 ├── .gitignore
 
 ## Communication
