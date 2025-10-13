@@ -55,8 +55,8 @@ The system features a "human-in-the-loop" operational model where the robot oper
 Track progress at: https://github.com/orgs/CS461-2025-Group80/projects/1
 
 ## Pull Requests
-feature/* → Pull Request → ≥1 review → merge
-Template for pull request located at .github/PULL_REQUEST_TEMPLATE.md
+- feature/* → Pull Request → ≥1 review → merge
+- Template for pull request located at .github/PULL_REQUEST_TEMPLATE.md
 
 ## Project Deliverables
 
