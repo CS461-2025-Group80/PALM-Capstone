@@ -26,7 +26,7 @@ Priority: High
 Keeping sensitive data such as license plates and inevitable images of pedestrians is crucial in maintaining trust on a university campus and complying with privacy laws.
 
 Priority: High
-###8. Document all system components, APIs, and workflows for future continuation of the project by the REVOBOTS organization and/or future capstone teams.
+### 8. Document all system components, APIs, and workflows for future continuation of the project by the REVOBOTS organization and/or future capstone teams.
 REVOBOTS is an organization that will continue development after our capstone completes, so allowing them to continue our development is important for their company.
 
 Priority: High
@@ -38,6 +38,7 @@ Priority: Medium
 Uploading unstructured image data or useless metadata will make training less efective, increase storage requirements, and take longer.
 
 Priority: High
+
 
 
 
