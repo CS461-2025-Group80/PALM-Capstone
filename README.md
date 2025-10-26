@@ -5,9 +5,9 @@ An intelligent Autonomous Mobile Robot (AMR) platform designed to autonomously p
 ## Team
 
 **Team Members:**
-- Andrew Fief - ROLE TBD - fiefa@oregonstate.edu
-- Justice Peyton - ROLE TBD - peytonju@oregonstate.edu
-- Luke Gasgvarger - ROLE TBD - hashbarl@oregonstate.edu
+- Andrew Fief - Storage Developer - fiefa@oregonstate.edu
+- Justice Peyton - ROS2 Developer - peytonju@oregonstate.edu
+- Luke Gasgvarger - VR/AR Developer - hashbarl@oregonstate.edu
 
 **Project Partner:** Rahul Khanna  
 **Teaching Assistant:** Yue Feiping
@@ -33,6 +33,8 @@ The system features a "human-in-the-loop" operational model where the robot oper
 
 ├── README.md
 
+├── documents
+
 ├── .gitignore
 
 ├──.github
@@ -44,7 +46,7 @@ The system features a "human-in-the-loop" operational model where the robot oper
   - Response time: within 36 hours
 - **Escalation**: Email
 - **Stand-ups**: [Schedule TBD]
-- **Partner Sync**: [Schedule TBD after initial meeting]
+- **Partner Sync**: Monday, 7:00 PM weekly
 
 ## Project Management
 
@@ -78,5 +80,5 @@ For questions or concerns, please contact:
 
 ---
 
-*Last Updated: [10/12/2025]*  
+*Last Updated: [10/25/2025]*  
 *Project Status: Sprint 1 - Initial Setup*
