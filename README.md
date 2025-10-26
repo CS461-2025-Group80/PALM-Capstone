@@ -1,3 +1,6 @@
+
+### **Please note that NO CODE will be stored here and will be instead on another repository, [here](https://github.com/Aadi0032007/PALM).**
+
 # PALM - AI Assisted Parking & Logistics Autonomous System
 
 An intelligent Autonomous Mobile Robot (AMR) platform designed to autonomously patrol parking areas, detect violations, and perform on-demand logistics tasks within campus environments.
@@ -5,9 +8,9 @@ An intelligent Autonomous Mobile Robot (AMR) platform designed to autonomously p
 ## Team
 
 **Team Members:**
-- Andrew Fief - Storage Developer - fiefa@oregonstate.edu
-- Justice Peyton - ROS2 Developer - peytonju@oregonstate.edu
-- Luke Gasgvarger - VR/AR Developer - hashbarl@oregonstate.edu
+- Andrew Fief - andyfief - Storage Developer - fiefa@oregonstate.edu
+- Justice Peyton - 3versource - ROS2 Developer - peytonju@oregonstate.edu
+- Luke Hashbarger - HashbrownBurg - VR/AR Developer - hashbarl@oregonstate.edu
 
 **Project Partner:** Rahul Khanna  
 **Teaching Assistant:** Yue Feiping
@@ -31,13 +34,15 @@ The system features a "human-in-the-loop" operational model where the robot oper
 
 ## Repository Structure
 
-├── README.md
+┌── .github
 
 ├── documents
 
+  - Contains various documents of the project in markdown format.
+
 ├── .gitignore
 
-├──.github
+└── README.md
 
 ## Communication
 
