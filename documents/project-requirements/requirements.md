@@ -41,14 +41,34 @@ For high-priority items, include acceptance criteria directly under the item
 
 ### Non Functional Requirements
   **Performance:** Real-time obstacle avoidance with low latency. High accuracy and precision in detecting parking violations.
+  
   **Reliability:** The system must operate continuously for multiple hours. Sensitive data is secured in a reliable cloud storage provider.
+  
   **Scalability:** Cloud-based infrastructure should handle logs and image uploads from multiple robots.
+  
   **Privacy:** All data must remain confidential. Training data remains anonymous. Code is under MIT license.
-  **Compliance:** Must adhere to OSU Capstone academic integrity guidelines and REVOBOTS confidentiality agreements. REVOBOTS must comply with Oregon State University (and future campus') privacy agreements.
+  
+  **Compliance:** Must adhere to OSU Capstone academic integrity guidelines and REVOBOTS confidentiality agreements. REVOBOTS must comply with Oregon State University (and future campus') privacy agreements
 ## Prioritization Method & Results
 asdf
-## Ethics, Risks, and Constraints Traceability
-asdf
+## Ethics, Risks, and Constraints
+### Ethical Considerations
+  **Privacy:** All captured images and data will be stored securely, accessable only by authorized personnel. No public sharing of identifiable data.
+
+  The REVOBOTS codebase is currently under MIT licensure.
+  
+  **Transparency:** Data used for AI model training will be labeled and processed responsibly.
+### Risks
+  **Technical Risk:** Integration challenges between ROS2 and Azure BLOB services
+  
+  **Operational Risk:** Libability issues when testing a robot with sub-standard object detection and collision avoidance.
+  
+  **Ethical Risk:** Handling and storing identifiable information including pedestrian faces, license plates, and vehicle images.
+### Constraints
+  Confidentiality of REVOBOTS proprietary property.
+  
+  Limited access to physical robots during testing periods and code drafting stages
+  
 ## Merge Methodology & Change References
 asdf 
 
