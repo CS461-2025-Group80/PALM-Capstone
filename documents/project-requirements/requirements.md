@@ -40,7 +40,11 @@ These are goals that the project does NOT fulfill.
 For high-priority items, include acceptance criteria directly under the item
 
 ### Non Functional Requirements
-  Include a short NFRs subsection.
+  **Performance:** Real-time obstacle avoidance with low latency. High accuracy and precision in detecting parking violations.
+  **Reliability:** The system must operate continuously for multiple hours. Sensitive data is secured in a reliable cloud storage provider.
+  **Scalability:** Cloud-based infrastructure should handle logs and image uploads from multiple robots.
+  **Privacy:** All data must remain confidential. Training data remains anonymous. Code is under MIT license.
+  **Compliance:** Must adhere to OSU Capstone academic integrity guidelines and REVOBOTS confidentiality agreements. REVOBOTS must comply with Oregon State University (and future campus') privacy agreements.
 ## Prioritization Method & Results
 asdf
 ## Ethics, Risks, and Constraints Traceability
