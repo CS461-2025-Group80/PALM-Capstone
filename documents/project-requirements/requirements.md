@@ -51,15 +51,34 @@ For high-priority items, include acceptance criteria directly under the item
   **Compliance:** Must adhere to OSU Capstone academic integrity guidelines and REVOBOTS confidentiality agreements. REVOBOTS must comply with Oregon State University (and future campus') privacy agreements
   
 ## Prioritization Method & Results
-Requirements are prioritized based on their impact on system safety, reliability, and project continuity.
 
-**Urgent Priority** requirements address privacy, digital safety, and physical safety concerns. These include data integrity, object detection and avoidance, and data security; areas where failure could result in harm, data loss, or violations of privacy.
+The team will prioritize our requirements based on the MoSCoW method, which prioritizes things as "Must Have", "Should Have", "Could Have", and "Will Not Have".
 
-**High Priority** requirements support the development process and team collaboration. This includes maintaining effective communication between teams, ensuring proper documentation, and enabling seamless integration across components.
+The team will prioritize our requirements based on the MoSCoW method, which prioritizes things as "Must Have", "Should Have", "Could Have", and "Will Not Have".
 
-**Medium Priority** requirements focus on the core functionality of the project, such as implementing a working AI model, ensuring proper camera functionality, and achieving essential system operations necessary for the PALM robot’s purpose.
+**"Must Have"** requirements are absolute demands that must be met. These are typically bare-minimum requirements that the project asks of us.
 
-**Low Priority** requirements involve enhancements and refinements that improve performance or usability but are not critical to the project’s success. Examples include optimizing API accessibility, improving data labeling accuracy, or polishing secondary features.
+**"Should Have"** requirements are not vital but add significant value to the overall project.
+
+**"Could Have"** requirements have small impact if not implemented.
+
+**"Will Not Have"** requirements are currently not prioritized but may become more important later on.
+
+Below is our team's list of requirements. Please note that each requirement has a unique ID that is based on the sources of where the requirement came from as well as an easy-to-read ID. An example unique ID, is A1J2L1, which signifies Andrew's 1st requirement, Justice's 2nd requirement, and Luke's 1st requirement were used as sources.
+
+| Requirement ID | Requirement | Priority | Acceptance Criteria |
+|-|-|-|-|
+|REQ-001 (A1A2A6J1J2)|The project shall have a self-navigating AI pilot created and trained by the PALM team.|Must Have|This is satisfied if a robot is able to navigate successfully 5 days a week without error.|
+|REQ-002 (J9L6)|The AI must self-identify that it can't complete a task on its own.|Must Have|This is satisfied if the AI can successfully figure out that it can't complete a task (either by being physically blocked or for some other reason)|
+|REQ-003 (J9L6)|The robot must request assistance from a human pilot in the event that it can't complete a task.|Must Have|This is satisfied if a self-identified failure results in the AI requesting for a human pilot.|
+|REQ-004 (A3A4A5A9A10J2L8)|The robot shall collect data (in the form of images and text) and report these to a remote server for training and debugging.|Must Have|This is satisfied if the robot can successfully connect to a remote server and send data during all of the robot's uptime.|
+|REQ-005 (J1L3L4)|The ROS2 API shall be usable by AI pilots.|Must Have|This is satisfied when the AI is able to use its ROS2 functionality without any error.|
+|REQ-006 (A8J4L10)|The project shall have relevant documentation made cleanly and modularly for future and current developers.|Must Have|This is satisfied by peer-review of documentation by REVOBOTS and team members as well as mutual understanding of the documenation.|
+|REQ-007 (J3J10L7)|The team shall communicate clearly with the REVOBOTS staff on updating requirements.|Should Have|This is satisfied by meeting weekly with REVOBOTS.|
+|REQ-008 (J7)|The team shall have near-always access to REVOBOTS hardware for testing.|Should Have|This is satisfied if the team is able to access hardware any business day.|
+|REQ-009 (J8)|The robot shall utilize well-defined safety measures outside of AI.|Must Have|This is satisfied if there are methods other than vision and AI that are used to ensure a safe distance from people and objects.|
+|REQ-010 (A7)|The robot shall maintain a secure communication with its servers.|Should Have|This is satisfied if the over-the-air communications are always encrypted.|
+
 
 ## Ethics, Risks, and Constraints
 ### Ethical Considerations
@@ -80,7 +99,14 @@ Requirements are prioritized based on their impact on system safety, reliability
   Limited access to physical robots during testing periods and code drafting stages
   
 ## Merge Methodology & Change References
-asdf 
+
+The entire merging process was done by Justice.
+
+Every team member created their own list of top 10 requirements.
+
+The individual requirements of every team member was consolidated into a global list of team-wide requirements. Anything that was too individual was generalized to the overarching project. Additionally, requirements that were too similar were merged together into one requirement to avoid unnecessary repetition.
+
+Every requirement was heuristically viewed.
 
 ## Appendix
 ### Andrew's Individal Requirements:
