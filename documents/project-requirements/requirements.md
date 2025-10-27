@@ -109,6 +109,11 @@ The individual requirements of every team member was consolidated into a global 
 Every requirement was heuristically viewed.
 
 ## Appendix
+### File Contributions
+This file was created on GitHub and thus is under Git control. You can review the full history of the file, [here](https://github.com/CS461-2025-Group80/PALM-Capstone/commits/main/documents/project-requirements/requirements.md). This encompasses all that everybody did.
+
+Please note that some commit times may be inaccurate (specifically for Justice, whose computer's clock was for some reason off by 7 hours).
+
 ### Andrew's Individal Requirements:
 **1. Create an AI pilot capable of autonomously navigating a college campus parking environment.**
 
