@@ -114,6 +114,9 @@ This file was created on GitHub and thus is under Git control. You can review th
 
 Please note that some commit times may be inaccurate (specifically for Justice, whose computer's clock was for some reason off by 7 hours).
 
+### questions.md
+We asked a series of questions to our project proposer for elaboration. This is evidence of the questions and their responses.
+
 ### Andrew's Individal Requirements:
 **1. Create an AI pilot capable of autonomously navigating a college campus parking environment.**
 
