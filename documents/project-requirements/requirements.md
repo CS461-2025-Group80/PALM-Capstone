@@ -49,8 +49,18 @@ For high-priority items, include acceptance criteria directly under the item
   **Privacy:** All data must remain confidential. Training data remains anonymous. Code is under MIT license.
   
   **Compliance:** Must adhere to OSU Capstone academic integrity guidelines and REVOBOTS confidentiality agreements. REVOBOTS must comply with Oregon State University (and future campus') privacy agreements
+  
 ## Prioritization Method & Results
-asdf
+Requirements are prioritized based on their impact on system safety, reliability, and project continuity.
+
+**Urgent Priority** requirements address privacy, digital safety, and physical safety concerns. These include data integrity, object detection and avoidance, and data security; areas where failure could result in harm, data loss, or violations of privacy.
+
+**High Priority** requirements support the development process and team collaboration. This includes maintaining effective communication between teams, ensuring proper documentation, and enabling seamless integration across components.
+
+**Medium Priority** requirements focus on the core functionality of the project, such as implementing a working AI model, ensuring proper camera functionality, and achieving essential system operations necessary for the PALM robot’s purpose.
+
+**Low Priority** requirements involve enhancements and refinements that improve performance or usability but are not critical to the project’s success. Examples include optimizing API accessibility, improving data labeling accuracy, or polishing secondary features.
+
 ## Ethics, Risks, and Constraints
 ### Ethical Considerations
   **Privacy:** All captured images and data will be stored securely, accessable only by authorized personnel. No public sharing of identifiable data.
