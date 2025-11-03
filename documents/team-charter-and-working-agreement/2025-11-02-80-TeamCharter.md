@@ -140,7 +140,7 @@ Tests live in root/tests and we will run them with pytest. We don’t expect the
 
 The CONTRIBUTING.md file is available [here](https://github.com/Aadi0032007/PALM/blob/main/CONTRIBUTING.md) on the official REVOBOTS repository.
 
-## Artifacts Note
+## Artifacts
 
 We do not have any explicit software artifacts at this time. We have recently obtained physical access to a robot that we will soon begin to work with and have also gained keycard access to the lab it is stored at in Kelley Engineering Center.
 
