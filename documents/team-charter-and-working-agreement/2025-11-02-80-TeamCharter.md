@@ -2,10 +2,13 @@
 
 # Team Charter & Working Agreement
 
-## Team Members & Roles
+# **Team Members & Roles**
 
-Describe each member’s role, primary responsibilities, backups/rotation plan, and contact info.
-
+| Member Name | Member Role(s) | Primary Responsibilities | Backups | Contact Info |
+| :---- | :---- | :---- | :---- | :---- |
+| Justice Peyton | ROS2 (robot operating system 2\) Developer, Communication & Collaboration Lead | \- Training and familiarizing with ROS2 \- Teaching and providing resources regarding ROS2 to team members \- Integrating ROS2 with other team members’ work \- Ensuring solid communication between the team and our project proposer \- Ensuring that the team can properly collaborate over Discord, Google Docs, and GitHub \- Ensuring timely collaboration on Capstone assignments | \- Communication backup: Luke | peytonju@oregonstate.edu, 650-750-4920 |
+| Luke Hashbarger | VR/AR, Note taker  | \- Expand VR/AR robot operation \- Take notes during in person meetings \- Ensure remote meeting transcripts and their summaries are  | \- Note taker backup: Justice | hashbarl@oregonstate.edu |
+| Andrew Fief | Storage/Vision Developer, Document Editor | \- Develop a robot \-\> azure cloud storage pipeline for large amounts of image data \- Effectively label and provide metadata with images to set up computer vision success \- Capstone document and technical paper finalizations including formatting, grammar checks, rubric requirement verification | \- Document Finalization Backup: Luke  | fiefa@oregonstate.edu 541-223-2925 |
 ## Decision-Making Model
 
 State how decisions are made (e.g., consent/majority), quorum, tie-break rules, and which decisions need instructor/partner input.
