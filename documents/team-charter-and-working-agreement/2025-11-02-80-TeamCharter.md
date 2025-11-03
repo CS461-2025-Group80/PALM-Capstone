@@ -144,10 +144,6 @@ The CONTRIBUTING.md file is available [here](https://github.com/Aadi0032007/PALM
 
 We do not have any explicit software artifacts at this time. We have recently obtained physical access to a robot that we will soon begin to work with and have also gained keycard access to the lab it is stored at in Kelley Engineering Center.
 
-### Meeting Transcripts
-
-Lots of the information on this was based on our initial team meeting on 10/13/2025. This is attached as “transcript.docx”.
-
 # **Assignment Contributions**
 
 All contributions are visible in the assignment’s edit history, [here](https://github.com/CS461-2025-Group80/PALM-Capstone/commits/main/documents/team-charter-and-working-agreement/2025-11-02-80-TeamCharter.md).
