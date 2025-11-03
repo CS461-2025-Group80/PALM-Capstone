@@ -136,6 +136,10 @@ Available [here](https://github.com/Aadi0032007/PALM/tree/main/tests).
 
 Tests live in root/tests and we will run them with pytest. We don’t expect the legacy code we inherited to pass all of our new configs, and so until it is updated, our CI config file uses echo commands in place of real tests being run. All new capstone code will use pytest.
 
+### Contributing File
+
+The CONTRIBUTING.md file is available [here](https://github.com/Aadi0032007/PALM/blob/main/CONTRIBUTING.md) on the official REVOBOTS repository.
+
 ## Artifacts Note
 
 We do not have any explicit software artifacts at this time. We have recently obtained physical access to a robot that we will soon begin to work with and have also gained keycard access to the lab it is stored at in Kelley Engineering Center.
@@ -147,5 +151,7 @@ Lots of the information on this was based on our initial team meeting on 10/13/2
 # **Assignment Contributions**
 
 All contributions are visible in the assignment’s edit history, [here](https://github.com/CS461-2025-Group80/PALM-Capstone/commits/main/documents/team-charter-and-working-agreement/2025-11-02-80-TeamCharter.md).
+
+The contributions to the CONTRIBUTING.md file are [here](https://github.com/Aadi0032007/PALM/commits/main/CONTRIBUTING.md).
 
 Please note that team members contributed to a Google Document. We eventually moved things over to GitHub. This means that the contributions are not entirely accurate.
