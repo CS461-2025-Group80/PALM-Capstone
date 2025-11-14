@@ -1,0 +1,9 @@
+Scripts are defined in "setup.py". They must refer to a static function.
+examples:
+	my-first-script = py_examples.some_publisher:main
+	my-second-script = py_examples.some_subscriber:main
+
+Dependencies are listed in the "package.xml" file.
+examples:
+	<exec_depend>rclpy</exec_depend>
+	<exec_depend>std_msgs</exec_depend>
