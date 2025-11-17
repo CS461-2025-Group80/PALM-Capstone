@@ -1,17 +1,16 @@
 #!/bin/bash
-sudo apt-get install ros-humble-ros2-control
-sudo apt-get install ros-humble-ros2-controllers
-sudo apt-get install ros-humble-xacro
-sudo apt-get install ros-humble-ros-gz*
-sudo apt-get install ros-humble-*-ros-control
-sudo apt-get install ros-humble-joint-state-publisher-gui
-sudo apt-get install ros-humble-turtlesim
-sudo apt-get install ros-humble-robot-localization
-sudo apt-get install ros-humble-joy
-sudo apt-get install ros-humble-joy-teleop
-sudo apt-get install ros-humble-tf-transformations
-sudo apt-get install ros-humble-urdf-tutorial
-sudo apt-get install python3-pip
+
+# generic ROS packages
+sudo apt-get install ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-xacro ros-humble-ros-gz* ros-humble-*-ros-control ros-humble-joint-state-publisher-gui ros-humble-turtlesim ros-humble-robot-localization ros-humble-joy ros-humble-joy-teleop ros-humble-tf-transformations ros-humble-urdf-tutorial python3-pip
+
 pip install transforms3d
+
+# turtlebot3 packages
+sudo apt-get install ros-humble-turtlebot3*
+
+# intel REALSENSE camera packages
+sudo apt-get install ros-humble-realsense2-camera ros-humble-realsense2-description
+
+
 
 
