@@ -1,6 +1,3 @@
-
-### **Please note that NO CODE will be stored here and will be instead on another repository, [here](https://github.com/Aadi0032007/PALM).**
-
 # PALM - AI Assisted Parking & Logistics Autonomous System
 
 An intelligent Autonomous Mobile Robot (AMR) platform designed to autonomously patrol parking areas, detect violations, and perform on-demand logistics tasks within campus environments.
