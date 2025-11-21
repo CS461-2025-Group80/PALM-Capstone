@@ -5,7 +5,13 @@ ROS2 is just a bunch of Linux packages.
 Follow these [instructions](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html). We use ROS2 Humble Hawksbill for Ubuntu 22.04. You can also just run the install script called "./palm-project/scripts/install-ros2-humble.bash" on any Ubuntu system.
 ## ROS2 Packages
 There are quite a lot of packages we'll be using. Just run "./palm-project/scripts/install-ros2-packages.bash".
-
+### rosdep
+#### sudo rosdep init
+Initializes your ROS dependency checker.
+#### sudo rosdep update
+Updates your ROS dependency checker.
+#### sudo rosdep install --from-paths ./src --ignore-src -r -y
+Installs all dependencies from the "./src" directory.
 ## Sourcing
 ### . install/setup.bash
 Adds the packages in src to the system's ROS2 environment (for the current terminal session)

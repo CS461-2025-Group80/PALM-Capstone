@@ -1,2 +1,5 @@
 The files here are ROS2 packages. Be careful of the naming, as you may replace the packages ROS2 comes with.
 
+audio_msgs, docker-long, docker-short, gst_bridge, gst_msgs, gst_pipeline, gst_pipeline_plugins, and gst_pipeline_plugins_webrtc are from:
+https://github.com/BrettRD/ros-gst-bridge?tab=readme-ov-file
+
