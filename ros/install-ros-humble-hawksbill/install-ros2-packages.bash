@@ -5,12 +5,3 @@ sudo apt-get install ros-humble-ros2-control ros-humble-ros2-controllers ros-hum
 
 pip install transforms3d
 
-# turtlebot3 packages
-sudo apt-get install ros-humble-turtlebot3*
-
-# intel REALSENSE camera packages
-sudo apt-get install ros-humble-realsense2-camera ros-humble-realsense2-description
-
-
-
-
