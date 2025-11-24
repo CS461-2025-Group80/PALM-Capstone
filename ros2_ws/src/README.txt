@@ -1,1 +1,0 @@
-This system uses OpenXR and ROS2 in order to get orientation data and pass it to ros. Needs a driver such as monado for openXR to work.
