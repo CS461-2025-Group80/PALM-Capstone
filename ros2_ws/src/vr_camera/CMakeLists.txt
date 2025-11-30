@@ -5,31 +5,45 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
+
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(OPENXR REQUIRED openxr)
 
-# Publisher
-add_executable(pose_publisher src/pose_publisher.cpp)
-ament_target_dependencies(
-  pose_publisher
-  rclcpp
+add_executable(openxr_pose_publisher src/openxr_pose_publisher.cpp)
+ament_target_dependencies(openxr_pose_publisher 
+  rclcpp 
   geometry_msgs
+  tf2_ros
+)
+target_link_libraries(openxr_pose_publisher ${OPENXR_LIBRARIES})
+
+install(TARGETS openxr_pose_publisher DESTINATION lib/${PROJECT_NAME})
+
+# Image Publisher Node
+add_executable(image_publisher_node src/camera_publisher.cpp)
+ament_target_dependencies(image_publisher_node 
+  rclcpp 
+  sensor_msgs 
+  cv_bridge
+  OpenCV
 )
 
-# Subscriber
-add_executable(pose_subscriber src/pose_subscriber.cpp)
-ament_target_dependencies(
-  pose_subscriber
-  rclcpp
-  geometry_msgs
-)
 
 # Install executables
 install(TARGETS
-  pose_publisher
-  pose_subscriber
+  image_publisher_node
+  openxr_pose_publisher
   DESTINATION lib/${PROJECT_NAME}
 )
 
