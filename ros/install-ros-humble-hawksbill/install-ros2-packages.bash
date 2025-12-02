@@ -13,3 +13,5 @@ sudo apt install -y gstreamer1.0-tools gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-ugly gstreamer1.0-libav \
     libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
+# Dependency for visual SLAM
+sudo apt install -y ros-humble-image-transport-plugins ros-humble-cv-bridge
