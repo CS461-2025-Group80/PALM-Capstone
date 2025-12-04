@@ -1,0 +1,1 @@
+This is a prototype / proof of concept for intel realsense -> azure cloud node that subscribes to the realsense images and sends them through the pipeline.
