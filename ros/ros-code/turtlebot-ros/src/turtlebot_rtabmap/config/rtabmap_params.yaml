@@ -70,7 +70,7 @@ rtabmap:
     Grid/CellSize: 0.05
     Grid/RangeMax: 5.0
     Grid/RayTracing: true
-    Grid/3D: false          # OK — bool type
+    Grid/3D: 'false'          # OK — bool type - Changed to string on error in launching
     Grid/GroundIsObstacle: false
     Grid/MaxObstacleHeight: 2.0
     Grid/MaxGroundAngle: 45
