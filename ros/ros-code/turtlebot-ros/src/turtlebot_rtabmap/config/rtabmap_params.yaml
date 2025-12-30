@@ -1,85 +1,88 @@
 rtabmap:
   ros__parameters:
 
-    # Frame IDs
-    frame_id: base_footprint
-    map_frame_id: map
-    odom_frame_id: odom
+    # Frame IDs (ROS-native)
+    frame_id: "base_footprint"
+    map_frame_id: "map"
+    odom_frame_id: "odom"
 
-    # Subscriptions
+    # Subscriptions (ROS-native)
     subscribe_depth: true
     subscribe_rgb: true
     subscribe_scan: true
     subscribe_stereo: false
-    subscribe_odom: true   # Set to false if you want *pure visual odom*
+    subscribe_odom: true   # Set to false if you want pure visual odom
 
-    # Sync
-    sync_queue_size: 10   # replaces deprecated queue_size
+    # Sync (ROS-native)
+    sync_queue_size: 10
     qos: 2
 
-    # TF
+    # TF (ROS-native)
     wait_for_transform: 0.2
 
+    # RTAB-Map internal parameters
+    # keep these as strings to avoid ROS2 strict typing conflicts
+    
     # Memory
-    Mem/IncrementalMemory: true
-    Mem/InitWMWithAllNodes: false
-    Mem/STMSize: 30
-    Mem/NotLinkedNodesKept: false
-    Mem/IntermediateNodeDataKept: false
+    Mem/IncrementalMemory: "true"
+    Mem/InitWMWithAllNodes: "false"
+    Mem/STMSize: "30"
+    Mem/NotLinkedNodesKept: "false"
+    Mem/IntermediateNodeDataKept: "false"
 
-    # 2D SLAM
-    Reg/Force3DoF: true
-    Optimizer/GravitySigma: 0.0
+    # 2D SLAM / Registration
+    Reg/Force3DoF: "true"
+    Optimizer/GravitySigma: "0.0"
 
     # Odometry
-    Odom/Strategy: 0         # 0 = external odom, 1 = visual odom
-    Odom/ResetCountdown: 1
-    Odom/GuessMotion: true
+    Odom/Strategy: "0"            # 0 = external odom, 1 = visual odom
+    Odom/ResetCountdown: "1"
+    Odom/GuessMotion: "true"
 
     # Visual features
-    Vis/MinInliers: 15
-    Vis/InlierDistance: 0.1
-    Vis/MaxDepth: 4.0
-    Vis/CorGuessWinSize: 20
+    Vis/MinInliers: "15"
+    Vis/InlierDistance: "0.1"
+    Vis/MaxDepth: "4.0"
+    Vis/CorGuessWinSize: "20"
 
     # RGBD
-    RGBD/Enabled: true
-    RGBD/NeighborLinkRefining: true
-    RGBD/ProximityBySpace: true
-    RGBD/ProximityMaxGraphDepth: 50
-    RGBD/ProximityPathMaxNeighbors: 10
-    RGBD/AngularUpdate: 0.01
-    RGBD/LinearUpdate: 0.01
-    RGBD/OptimizeFromGraphEnd: false
-    RGBD/LocalRadius: 5.0
+    RGBD/Enabled: "true"
+    RGBD/NeighborLinkRefining: "true"
+    RGBD/ProximityBySpace: "true"
+    RGBD/ProximityMaxGraphDepth: "50"
+    RGBD/ProximityPathMaxNeighbors: "10"
+    RGBD/AngularUpdate: "0.01"
+    RGBD/LinearUpdate: "0.01"
+    RGBD/OptimizeFromGraphEnd: "false"
+    RGBD/LocalRadius: "5.0"
 
     # Loop closure
-    Rtabmap/TimeThr: 0
-    Rtabmap/DetectionRate: 1.0
-    Rtabmap/LoopRatio: 0.7
-    Rtabmap/LoopThr: 0.11
-    Mem/RehearsalSimilarity: 0.30
+    Rtabmap/TimeThr: "0"
+    Rtabmap/DetectionRate: "1.0"
+    Rtabmap/LoopRatio: "0.7"
+    Rtabmap/LoopThr: "0.11"
+    Mem/RehearsalSimilarity: "0.30"
 
     # Graph optimization
-    Optimizer/Strategy: 0
-    Optimizer/Iterations: 100
-    Optimizer/Epsilon: 0.00001
+    Optimizer/Strategy: "0"
+    Optimizer/Iterations: "100"
+    Optimizer/Epsilon: "0.00001"
 
     # Mapping
-    Grid/FromDepth: true
-    Grid/CellSize: 0.05
-    Grid/RangeMax: 5.0
-    Grid/RayTracing: true
-    Grid/3D: 'false'          # OK — bool type - Changed to string on error in launching
-    Grid/GroundIsObstacle: false
-    Grid/MaxObstacleHeight: 2.0
-    Grid/MaxGroundAngle: 45
-    Grid/NormalsSegmentation: true
-    Grid/ClusterRadius: 0.1
-    Grid/FlatObstacleDetected: true
+    Grid/FromDepth: "true"
+    Grid/CellSize: "0.05"
+    Grid/RangeMax: "5.0"
+    Grid/RayTracing: "true"
+    Grid/3D: "false"
+    Grid/GroundIsObstacle: "false"
+    Grid/MaxObstacleHeight: "2.0"
+    Grid/MaxGroundAngle: "45"
+    Grid/NormalsSegmentation: "true"
+    Grid/ClusterRadius: "0.1"
+    Grid/FlatObstacleDetected: "true"
 
     # Visualization
-    Rtabmap/PublishStats: true
-    Rtabmap/PublishLastSignature: true
-    Rtabmap/PublishPdf: true
-    Rtabmap/PublishLikelihood: true
+    Rtabmap/PublishStats: "true"
+    Rtabmap/PublishLastSignature: "true"
+    Rtabmap/PublishPdf: "true"
+    Rtabmap/PublishLikelihood: "true"
