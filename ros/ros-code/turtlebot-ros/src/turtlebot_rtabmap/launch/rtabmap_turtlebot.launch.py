@@ -65,11 +65,11 @@ def generate_launch_description():
     # Remappings for TurtleBot topics
     # Adjust these based on your TurtleBot model
     rtabmap_remappings = [
-        ('rgb/image', '/camera/image_raw'),
-        ('rgb/camera_info', '/camera/camera_info'),
-        ('depth/image', '/camera/depth/image_raw'),
-        ('scan', '/scan'),
-        ('odom', '/odom'),
+        ('rgb/image',        '/camera/camera/color/image_rect_raw'),
+        ('rgb/camera_info',  '/camera/camera/color/camera_info'),
+        ('depth/image',      '/camera/camera/depth/image_rect_raw'),
+        ('scan',             '/scan'),
+        ('odom',             '/odom'),
     ]
     
     # RTAB-Map SLAM node
