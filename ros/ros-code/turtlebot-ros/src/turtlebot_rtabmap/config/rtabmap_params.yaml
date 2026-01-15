@@ -9,7 +9,7 @@ rtabmap:
     # Subscriptions (ROS-native)
     subscribe_depth: true
     subscribe_rgb: true
-    subscribe_scan: true
+    subscribe_scan: false
     subscribe_stereo: false
     subscribe_odom: true   # Set to false if you want pure visual odom
 
