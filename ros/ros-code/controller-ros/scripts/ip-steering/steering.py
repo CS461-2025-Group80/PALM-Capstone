@@ -2,7 +2,7 @@
 import json, socket, time, math, pygame, sys
 
 # --- CONFIGURATION ---
-ROBOT_IP   = "100.103.27.32"   # <-- change to robot's tailscale IP
+ROBOT_IP   = "100.120.125.53"   # <-- change to robot's tailscale IP
 ROBOT_PORT = 55055           # must match receiver
 SEND_HZ    = 50              # send rate
 MAX_SPEED  = 1.0             # m/s (tune to taste)
