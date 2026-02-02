@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+
+
+class ScanLogger(Node):
+    """
+    ROS2 node that subscribes to /scan topic and saves LIDAR data locally.
+    Saves data at a configurable rate to avoid overwhelming the system.
+    """
+
+    def __init__(self):
+        super().__init__('scan_logger')
+        
+        # Declare parameters
+        self.declare_parameter('save_directory', '~/lidar_data')
+        self.declare_parameter('save_interval', 2.0)  # seconds between saves
+        self.declare_parameter('scan_topic', '/scan')
+        self.declare_parameter('file_format', 'json')  # json or csv
+        self.declare_parameter('max_range_filter', 0.0)  # 0.0 means no filter
+        
+        # Get parameters
+        save_dir = self.get_parameter('save_directory').value
+        self.save_interval = self.get_parameter('save_interval').value
+        scan_topic = self.get_parameter('scan_topic').value
+        self.file_format = self.get_parameter('file_format').value
+        self.max_range_filter = self.get_parameter('max_range_filter').value
+        
+        # Expand ~ and create directory
+        self.save_directory = Path(save_dir).expanduser()
+        self.save_directory.mkdir(parents=True, exist_ok=True)
+        
+        self.get_logger().info(f'Saving LIDAR data to: {self.save_directory}')
+        self.get_logger().info(f'Save interval: {self.save_interval} seconds')
+        self.get_logger().info(f'File format: {self.file_format}')
+        
+        # Initialize variables
+        self.last_saved_time = self.get_clock().now()
+        self.latest_scan = None
+        self.scan_count = 0
+        self.saved_count = 0
+        
+        # Subscribe to scan topic
+        self.subscription = self.create_subscription(
+            LaserScan,
+            scan_topic,
+            self.scan_callback,
+            10
+        )
+        
+        # Create a timer to periodically save data
+        self.timer = self.create_timer(self.save_interval, self.save_callback)
+        
+        self.get_logger().info(f'Scan logger started. Listening to {scan_topic}')
+
+    def scan_callback(self, msg):
+        """Callback when a new scan message is received"""
+        self.latest_scan = msg
+        self.scan_count += 1
+        
+        # Log every 100 scans
+        if self.scan_count % 100 == 0:
+            self.get_logger().info(f'Received {self.scan_count} scans, saved {self.saved_count} files')
+
+    def save_callback(self):
+        """Timer callback to save the latest scan data"""
+        if self.latest_scan is None:
+            self.get_logger().warn('No scan data received yet')
+            return
+        
+        try:
+            timestamp = datetime.now()
+            filename = timestamp.strftime('%Y%m%d_%H%M%S_%f')
+            
+            if self.file_format == 'json':
+                self.save_as_json(filename, timestamp)
+            elif self.file_format == 'csv':
+                self.save_as_csv(filename, timestamp)
+            else:
+                self.get_logger().error(f'Unknown file format: {self.file_format}')
+                return
+            
+            self.saved_count += 1
+            
+        except Exception as e:
+            self.get_logger().error(f'Error saving scan data: {str(e)}')
+
+    def save_as_json(self, filename, timestamp):
+        """Save scan data as JSON file"""
+        scan = self.latest_scan
+        
+        # Filter ranges if max_range_filter is set
+        ranges = list(scan.ranges)
+        if self.max_range_filter > 0.0:
+            ranges = [r if r < self.max_range_filter else self.max_range_filter for r in ranges]
+        
+        data = {
+            'timestamp': timestamp.isoformat(),
+            'header': {
+                'stamp_sec': scan.header.stamp.sec,
+                'stamp_nanosec': scan.header.stamp.nanosec,
+                'frame_id': scan.header.frame_id
+            },
+            'angle_min': scan.angle_min,
+            'angle_max': scan.angle_max,
+            'angle_increment': scan.angle_increment,
+            'time_increment': scan.time_increment,
+            'scan_time': scan.scan_time,
+            'range_min': scan.range_min,
+            'range_max': scan.range_max,
+            'ranges': ranges,
+            'intensities': list(scan.intensities) if len(scan.intensities) > 0 else []
+        }
+        
+        filepath = self.save_directory / f'{filename}.json'
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
+        
+        self.get_logger().debug(f'Saved scan to {filepath}')
+
+    def save_as_csv(self, filename, timestamp):
+        """Save scan data as CSV file"""
+        scan = self.latest_scan
+        
+        filepath = self.save_directory / f'{filename}.csv'
+        with open(filepath, 'w') as f:
+            # Write header
+            f.write('timestamp,angle,range,intensity\n')
+            
+            # Write data
+            for i, r in enumerate(scan.ranges):
+                # Skip if filtering and out of range
+                if self.max_range_filter > 0.0 and r > self.max_range_filter:
+                    r = self.max_range_filter
+                
+                angle = scan.angle_min + i * scan.angle_increment
+                intensity = scan.intensities[i] if i < len(scan.intensities) else 0.0
+                
+                f.write(f'{timestamp.isoformat()},{angle},{r},{intensity}\n')
+        
+        self.get_logger().debug(f'Saved scan to {filepath}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    
+    scan_logger = ScanLogger()
+    
+    try:
+        rclpy.spin(scan_logger)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        scan_logger.get_logger().info(f'Shutting down. Total scans received: {scan_logger.scan_count}, saved: {scan_logger.saved_count}')
+        scan_logger.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
