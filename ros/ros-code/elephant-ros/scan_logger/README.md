@@ -4,7 +4,7 @@ A ROS2 package for logging LIDAR scan data from `/scan` topic to local storage a
 
 ## Features
 
-- Subscribes to `/scan` topic (LaserScan messages)
+- Subscribes to `/scan` topic
 - Saves data at configurable intervals (default: 2 seconds) to prevent system overload
 - Supports JSON and CSV file formats
 - Configurable save directory
@@ -108,23 +108,6 @@ Each file contains rows with:
 
 Example filename: `20240215_143022_123456.csv`
 
-## Performance Considerations
-
-**Default Settings (Recommended for Most Cases):**
-- Save interval: 2.0 seconds
-- File format: JSON
-- No range filtering
-
-**For Extended Operation:**
-- Increase save_interval to 5.0+ seconds
-- Use CSV format (smaller file size)
-- Enable max_range_filter to reduce data points
-
-**Disk Usage Estimates:**
-- JSON: ~50-200 KB per file (depends on scan density)
-- CSV: ~30-150 KB per file
-- 1 hour at 2-second intervals: ~180 files, ~10-35 MB
-
 ## Monitoring
 
 The node logs information every 100 scans:
@@ -138,23 +121,3 @@ The package is designed to facilitate future Azure cloud upload:
 - Files are saved with timestamped filenames for easy batch processing
 - Structured format (JSON/CSV) for cloud storage
 - Can add Azure Blob Storage upload functionality in a separate node or script
-
-## Troubleshooting
-
-**No data being saved:**
-- Verify `/scan` topic is publishing: `ros2 topic echo /scan`
-- Check save directory permissions
-- View node logs: `ros2 run lidar_logger scan_logger --ros-args --log-level debug`
-
-**Files too large:**
-- Increase `save_interval` parameter
-- Use CSV format instead of JSON
-- Enable `max_range_filter` to cap range values
-
-**Permission denied:**
-- Ensure the save directory exists and is writable
-- Try using an absolute path for `save_directory`
-
-## License
-
-MIT
