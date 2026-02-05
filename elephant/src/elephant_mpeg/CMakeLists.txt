@@ -15,22 +15,29 @@ find_package(cv_bridge REQUIRED)
 # 2. GStreamer setup (Use PkgConfig instead of find_package)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0 gstreamer-app-1.0)
-
 add_executable(camera_gstreamer_node src/camera_gstreamer_node.cpp)
+add_executable(opencv_camera_node src/opencv_camera_node.cpp)
+
 
 # 3. Apply ROS 2 dependencies
 ament_target_dependencies(camera_gstreamer_node
     rclcpp 
     sensor_msgs 
-    OpenCV 
+)
+
+ament_target_dependencies(opencv_camera_node
+    rclcpp
+    sensor_msgs
+    OpenCV
     cv_bridge
 )
 
 # 4. Manually link GStreamer (PkgConfig variables)
 target_include_directories(camera_gstreamer_node PUBLIC ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(camera_gstreamer_node ${GSTREAMER_LIBRARIES})
+target_link_libraries(opencv_camera_node ${OpenCV_LIBRARIES})
 
-install(TARGETS camera_gstreamer_node DESTINATION lib/${PROJECT_NAME})
+install(TARGETS camera_gstreamer_node opencv_camera_node DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
