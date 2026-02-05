@@ -20,10 +20,10 @@ setup(
     maintainer_email='your_email@example.com',
     description='ROS2 package for logging LIDAR scan data to local storage',
     license='MIT',
-    tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
-            'scan_logger = lidar_logger.scan_logger:main',
-        ],
-    },
+    tests_require=['pytest']
+#    entry_points={
+#        'console_scripts': [
+#            'scan_logger = lidar_logger.scan_logger:main',
+#        ],
+#    },
 )

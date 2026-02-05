@@ -1,123 +1,115 @@
-# LIDAR Logger - ROS2 Package
+# LIDAR Data Logger - Quick Start Guide
 
-A ROS2 package for logging LIDAR scan data from `/scan` topic to local storage at a configurable rate.
+## Overview
+ROS2 node that logs LIDAR scan data from the YDLidar to local storage for later upload to Azure.
 
-## Features
+## Prerequisites
+- ROS2 Galactic
+- YDLidar ROS2 driver installed at `~/myagv_ros2`
+- This package in elephant-development branch
 
-- Subscribes to `/scan` topic
-- Saves data at configurable intervals (default: 2 seconds) to prevent system overload
-- Supports JSON and CSV file formats
-- Configurable save directory
-- Optional range filtering to reduce file size
-- Includes launch file for easy parameter configuration
+## Quick Start
 
-## Package Contents
+### 1. Start the YDLidar driver
 
-```
-lidar_logger/
-├── lidar_logger/
-│   ├── __init__.py
-│   └── scan_logger.py          # Main node implementation
-├── launch/
-│   └── scan_logger.launch.py   # Launch file
-├── resource/
-│   └── lidar_logger            # Resource marker file
-├── package.xml
-├── setup.py
-├── setup.cfg
-├── CMakeLists.txt
-└── README.md
-```
-
-## Installation
-
-1. Copy this package to your ROS2 workspace src directory:
-   ```bash
-   cd ~/ros2_ws/src
-   cp -r /path/to/lidar_logger .
-   ```
-
-2. Build the package:
-   ```bash
-   cd ~/ros2_ws
-   colcon build --packages-select lidar_logger
-   ```
-
-3. Source the workspace:
-   ```bash
-   source ~/ros2_ws/install/setup.bash
-   ```
-
-## Usage
-
-### Method 1: Using Launch File (Recommended)
-
-Launch with default parameters:
+Open Terminal 1:
 ```bash
-ros2 launch lidar_logger scan_logger.launch.py
+source /home/er/myagv_ros2/install/setup.bash
+ros2 launch ydlidar_ros2_driver ydlidar_launch.py
 ```
 
-Launch with custom parameters:
+### 2. Start the data logger
+
+Open Terminal 2:
+```bash
+# Navigate to package
+cd ~/palm/ros/ros-code/elephant-ros/scan_logger
+
+# Build (only needed after code changes)
+colcon build --packages-select lidar_logger
+
+# Source both workspaces
+source /home/er/myagv_ros2/install/setup.bash
+source ~/palm/ros/ros-code/elephant-ros/scan_logger/install/setup.bash
+
+# Run the logger
+ros2 run lidar_logger scan_logger
+```
+
+You should see:
+```
+[INFO] [scan_logger]: Saving LIDAR data to: /home/er/lidar_data
+[INFO] [scan_logger]: Save interval: 2.0 seconds
+[INFO] [scan_logger]: Scan logger started. Listening to /scan
+[INFO] [scan_logger]: Received 100 scans, saved 6 files
+```
+
+### 3. Verify data is being saved
+
+Open Terminal 3:
+```bash
+# Check files
+ls -lh ~/lidar_data/
+
+# Watch files being created in real-time
+watch -n 1 'ls -lht ~/lidar_data/ | head -10'
+
+# View a sample file
+cat ~/lidar_data/$(ls -t ~/lidar_data/ | head -1) | head -30
+```
+
+## Configuration
+
+You can customize the logger with launch parameters:
 ```bash
 ros2 launch lidar_logger scan_logger.launch.py \
-    save_directory:=/home/user/my_lidar_data \
+    save_directory:=/custom/path \
     save_interval:=5.0 \
     file_format:=csv
 ```
 
-### Method 2: Running Node Directly
+Available parameters:
+- `save_directory`: Where to save files (default: `~/lidar_data`)
+- `save_interval`: Seconds between saves (default: `2.0`)
+- `file_format`: `json` or `csv` (default: `json`)
+- `scan_topic`: Topic name (default: `/scan`)
+- `max_range_filter`: Max range in meters, 0.0 = no filter (default: `0.0`)
 
-```bash
-ros2 run lidar_logger scan_logger
-```
+## File Output
 
-With custom parameters:
-```bash
-ros2 run lidar_logger scan_logger \
-    --ros-args \
-    -p save_directory:=/home/user/lidar_data \
-    -p save_interval:=3.0 \
-    -p file_format:=json
-```
+Files are saved with timestamps: `YYYYMMDD_HHMMSS_microseconds.json`
 
-## Parameters
+Example: `20260205_153022_123456.json`
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `save_directory` | string | `~/lidar_data` | Directory where scan files will be saved |
-| `save_interval` | float | `2.0` | Time in seconds between saving scans |
-| `scan_topic` | string | `/scan` | Name of the LaserScan topic to subscribe to |
-| `file_format` | string | `json` | File format: `json` or `csv` |
-| `max_range_filter` | float | `0.0` | Maximum range to save (0.0 = no filtering) |
-
-## File Formats
-
-### JSON Format
 Each file contains:
 - Timestamp
-- Scan header information
-- Angle configuration (min, max, increment)
-- Range and intensity arrays
-- Metadata (scan_time, time_increment, etc.)
+- Full LIDAR scan data (ranges, angles, intensities)
+- Header information
+- Scan parameters
 
-Example filename: `20240215_143022_123456.json`
+## Troubleshooting
 
-### CSV Format
-Each file contains rows with:
-- timestamp, angle, range, intensity
+### No data received
+- Check LIDAR is running: `ros2 topic list` (should see `/scan`)
+- Check data is publishing: `ros2 topic echo /scan --once`
 
-Example filename: `20240215_143022_123456.csv`
+### QoS mismatch warning
+- Already handled in code with BEST_EFFORT reliability
 
-## Monitoring
+### Build errors
+- Make sure you're in the package directory
+- Clean build: `rm -rf build/ install/ log/` then rebuild
 
-The node logs information every 100 scans:
+## Development
+
+After making code changes:
+```bash
+cd ~/palm/ros/ros-code/elephant-ros/scan_logger
+colcon build --packages-select lidar_logger
+source install/setup.bash
 ```
-[scan_logger]: Received 500 scans, saved 25 files
-```
 
-## Future Enhancements (Azure Upload)
-
-The package is designed to facilitate future Azure cloud upload:
-- Files are saved with timestamped filenames for easy batch processing
-- Structured format (JSON/CSV) for cloud storage
-- Can add Azure Blob Storage upload functionality in a separate node or script
+## Next Steps
+- Set up Azure upload script
+- Configure automatic startup on boot
+- Add data compression for storage efficiency

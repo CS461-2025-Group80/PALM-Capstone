@@ -18,8 +18,8 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   lidar_logger/scan_logger.py
   DESTINATION lib/${PROJECT_NAME}
+  RENAME scan_logger
 )
-
 # Install launch files
 install(DIRECTORY
   launch

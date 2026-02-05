@@ -7,7 +7,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
 class ScanLogger(Node):
     """
@@ -47,11 +47,17 @@ class ScanLogger(Node):
         self.saved_count = 0
         
         # Subscribe to scan topic
+        qos_profile = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+
         self.subscription = self.create_subscription(
             LaserScan,
             scan_topic,
             self.scan_callback,
-            10
+            qos_profile  # Changed from 10 to qos_profile
         )
         
         # Create a timer to periodically save data
