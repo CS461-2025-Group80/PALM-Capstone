@@ -58,13 +58,27 @@ cd ~/ros/ros-code
 
 ### Available Nodes:
 
-- `agv-ros/lidar_logger`
-- `agv-ros/VNC`
-- `agv-ros/camera`
-- `agv-ros/mapping`
-- `turtlebot-ros/rtabmap`
-- `controller-ros/VNC`
-- `controller-ros/gstreamer-listener`
+agv-ros/
+- `lidar_logger`
+- `gazebo_ros_pkgs`
+- `myagv_description`
+- `myagv_navigation2`
+- `myagv_odometry`
+- `adapter firmwareV1.2`
+- `navigation2`
+- `robot_localization`
+- `slam_gmapping`
+- `teleop_twist_keyboard`
+- `vision_opencv`
+- `ydlidar_ros2_driver`
+
+turtlebot-ros/
+- `rtabmap`
+- `intel-realsense`
+
+controller-ros/
+- `VNC`
+- `gstreamer-listener`
 
 ### Make Node Changes, Then:
 
