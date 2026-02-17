@@ -19,10 +19,19 @@ add_executable(camera_gstreamer_node src/camera_gstreamer_node.cpp)
 add_executable(opencv_camera_node src/opencv_camera_node.cpp)
 
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GSTREAMER REQUIRED
+  gstreamer-1.0
+  gstreamer-app-1.0)
+
+include_directories(${GSTREAMER_INCLUDE_DIRS})
+
+
 # 3. Apply ROS 2 dependencies
 ament_target_dependencies(camera_gstreamer_node
     rclcpp 
     sensor_msgs 
+    cv_bridge
 )
 
 ament_target_dependencies(opencv_camera_node
