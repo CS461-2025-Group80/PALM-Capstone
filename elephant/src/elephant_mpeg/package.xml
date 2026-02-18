@@ -1,26 +1,32 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>gst_camera_pkg</name>
+  <name>elephant_mpeg</name>
   <version>0.0.1</version>
-  <description>GStreamer camera publisher for ROS2</description>
+  <description>ROS2 node encoding images to MPEG/H264 using GStreamer</description>
 
   <maintainer email="you@example.com">Your Name</maintainer>
   <license>Apache-2.0</license>
 
-  <!-- Build tool -->
+  <!-- Build system -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- ROS dependencies -->
+  <!-- ROS -->
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
 
-  <!-- Needed for pkg-config lookup -->
+  <!-- Needed for OpenCV linking -->
+  <depend>opencv</depend>
+
+  <!-- pkg-config for GStreamer discovery -->
   <build_depend>pkg-config</build_depend>
 
-  <!-- Runtime GStreamer packages -->
+  <!-- Runtime GStreamer -->
   <exec_depend>gstreamer1.0</exec_depend>
   <exec_depend>gstreamer1.0-plugins-base</exec_depend>
   <exec_depend>gstreamer1.0-plugins-good</exec_depend>
+  <exec_depend>gstreamer1.0-plugins-bad</exec_depend>
+  <exec_depend>gstreamer1.0-libav</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
