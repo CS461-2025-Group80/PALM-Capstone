@@ -1,58 +1,65 @@
 cmake_minimum_required(VERSION 3.8)
-project(elephant_mpeg)
+project(gst_camera_pkg)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+# Default C++ standard
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+# Warnings (optional but recommended)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# 1. Standard ROS 2 dependencies
+# -----------------------
+# Find dependencies
+# -----------------------
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(cv_bridge REQUIRED)
 
-# 2. GStreamer setup (Use PkgConfig instead of find_package)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0 gstreamer-app-1.0)
-add_executable(camera_gstreamer_node src/camera_gstreamer_node.cpp)
-add_executable(opencv_camera_node src/opencv_camera_node.cpp)
-
-
+# GStreamer via pkg-config
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GSTREAMER REQUIRED
-  gstreamer-1.0
-  gstreamer-app-1.0)
-
-include_directories(${GSTREAMER_INCLUDE_DIRS})
-
-
-# 3. Apply ROS 2 dependencies
-ament_target_dependencies(camera_gstreamer_node
-    rclcpp 
-    sensor_msgs 
-    cv_bridge
+    gstreamer-1.0
+    gstreamer-app-1.0
 )
 
-ament_target_dependencies(opencv_camera_node
-    rclcpp
-    sensor_msgs
-    OpenCV
-    cv_bridge
+# Include directories
+include_directories(
+  include
+  ${GSTREAMER_INCLUDE_DIRS}
 )
 
-# 4. Manually link GStreamer (PkgConfig variables)
-target_include_directories(camera_gstreamer_node PUBLIC ${GSTREAMER_INCLUDE_DIRS})
-target_link_libraries(camera_gstreamer_node ${GSTREAMER_LIBRARIES})
-target_link_libraries(opencv_camera_node ${OpenCV_LIBRARIES})
+link_directories(${GSTREAMER_LIBRARY_DIRS})
 
-install(TARGETS camera_gstreamer_node opencv_camera_node DESTINATION lib/${PROJECT_NAME})
+# -----------------------
+# Executable
+# -----------------------
+add_executable(gst_camera_node
+  src/gst_camera_node.cpp
+)
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  set(ament_cmake_copyright_FOUND TRUE)
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+ament_target_dependencies(
+  gst_camera_node
+  rclcpp
+  sensor_msgs
+)
 
+target_link_libraries(
+  gst_camera_node
+  ${GSTREAMER_LIBRARIES}
+)
+
+# -----------------------
+# Install
+# -----------------------
+install(TARGETS
+  gst_camera_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# -----------------------
+# Export
+# -----------------------
 ament_package()
