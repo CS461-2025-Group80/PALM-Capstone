@@ -4,16 +4,25 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+
+#include <filesystem>
+
 class GstCameraNode : public rclcpp::Node
 {
 public:
-    GstCameraNode() : Node("gst_camera_node")
+    GstCameraNode() : Node("gst_camera_node"), frame_count_(0)
     {
-        pub_ = create_publisher<sensor_msgs::msg::Image>("camera/image_raw", 10);
+        pub_ = create_publisher<sensor_msgs::msg::Image>(
+            "camera/image_raw", 10);
+
+        // Create directory if needed
+        save_dir_ = "ros2_images";
+        std::filesystem::create_directories(save_dir_);
 
         gst_init(nullptr, nullptr);
 
-        // GStreamer pipeline string
         const char *pipeline_desc =
             "nvarguscamerasrc ! "
             "video/x-raw(memory:NVMM),width=1920,height=1080,framerate=30/1 ! "
@@ -27,22 +36,24 @@ public:
         pipeline_ = gst_parse_launch(pipeline_desc, &error);
 
         if (!pipeline_ || error) {
-            RCLCPP_FATAL(get_logger(), "Failed to create pipeline: %s",
+            RCLCPP_FATAL(get_logger(), "Failed pipeline: %s",
                          error ? error->message : "unknown");
             throw std::runtime_error("Pipeline creation failed");
         }
 
-        // Get appsink
-        GstElement *sink = gst_bin_get_by_name(GST_BIN(pipeline_), "sink");
+        GstElement *sink =
+            gst_bin_get_by_name(GST_BIN(pipeline_), "sink");
         appsink_ = GST_APP_SINK(sink);
 
         gst_app_sink_set_emit_signals(appsink_, true);
         gst_app_sink_set_drop(appsink_, true);
         gst_app_sink_set_max_buffers(appsink_, 1);
 
-        g_signal_connect(appsink_, "new-sample",
-                         G_CALLBACK(&GstCameraNode::on_new_sample_static),
-                         this);
+        g_signal_connect(
+            appsink_,
+            "new-sample",
+            G_CALLBACK(&GstCameraNode::on_new_sample_static),
+            this);
 
         gst_element_set_state(pipeline_, GST_STATE_PLAYING);
     }
@@ -58,10 +69,15 @@ private:
     GstElement *pipeline_;
     GstAppSink *appsink_;
 
-    // Static wrapper for callback
-    static GstFlowReturn on_new_sample_static(GstAppSink *sink, gpointer user_data)
+    std::string save_dir_;
+    size_t frame_count_;
+
+    static GstFlowReturn on_new_sample_static(
+        GstAppSink *sink,
+        gpointer user_data)
     {
-        return static_cast<GstCameraNode *>(user_data)->on_new_sample(sink);
+        return static_cast<GstCameraNode *>(user_data)
+            ->on_new_sample(sink);
     }
 
     GstFlowReturn on_new_sample(GstAppSink *sink)
@@ -74,6 +90,7 @@ private:
         GstCaps *caps = gst_sample_get_caps(sample);
 
         GstStructure *s = gst_caps_get_structure(caps, 0);
+
         int width, height;
         gst_structure_get_int(s, "width", &width);
         gst_structure_get_int(s, "height", &height);
@@ -81,11 +98,32 @@ private:
         GstMapInfo map;
         gst_buffer_map(buffer, &map, GST_MAP_READ);
 
-        // Fill ROS2 image message
-        auto msg = sensor_msgs::msg::Image();
-        msg.header.stamp = now();
-        msg.header.frame_id = "camera_frame";
+        // -------- Log capture ----------
+        auto stamp = now();
+        RCLCPP_INFO(
+            get_logger(),
+            "Captured frame %zu at %d.%09u",
+            frame_count_,
+            stamp.seconds(),
+            stamp.nanoseconds() % 1000000000);
 
+        // -------- Save image ----------
+        cv::Mat rgb(height, width, CV_8UC3, (void*)map.data);
+
+        std::stringstream filename;
+        filename << save_dir_
+                 << "/frame_"
+                 << std::setw(6)
+                 << std::setfill('0')
+                 << frame_count_
+                 << ".png";
+
+        cv::imwrite(filename.str(), rgb);
+
+        // -------- Publish ROS image ----------
+        sensor_msgs::msg::Image msg;
+        msg.header.stamp = stamp;
+        msg.header.frame_id = "camera_frame";
         msg.width = width;
         msg.height = height;
         msg.encoding = "rgb8";
@@ -93,6 +131,8 @@ private:
         msg.data.assign(map.data, map.data + map.size);
 
         pub_->publish(msg);
+
+        frame_count_++;
 
         gst_buffer_unmap(buffer, &map);
         gst_sample_unref(sample);
