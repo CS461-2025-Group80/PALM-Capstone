@@ -31,10 +31,10 @@ public:
 	void publisherOdom(double dt);
 	void publisherImuSensor();
 	void Publish_Voltage();
-	bool readSpeed();
-	void writeSpeed(double movex, double movey, double rot);
 
 private:
+	bool readSpeed();
+	void writeSpeed(double movex, double movey, double rot);
 	void restore();
 	void restoreRun();
 	void clearSerialBuffer();
