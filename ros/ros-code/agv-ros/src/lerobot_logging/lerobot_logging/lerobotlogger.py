@@ -3,88 +3,72 @@ from rclpy.node import Node
 import cv2
 from geometry_msgs.msg import Twist
 import json
-import base64
 import os
 import subprocess
 import threading
+import argparse
 from concurrent.futures import ThreadPoolExecutor
 from ament_index_python.packages import get_package_share_directory
 
-def open_camera(dev, fps, logger, width, height, force=False):
-    # if we're forcefully starting,
-    if force:
-        try:
-            # kill gstreamer
-            subprocess.run(['killall', 'gst-launch-1.0'], stderr=subprocess.DEVNULL)
-        except:
-            pass
+def open_camera(camera_index, fps, logger, width, height):
+    pipeline = (
+        f"nvarguscamerasrc sensor-id={camera_index} ! "
+        f"video/x-raw(memory:NVMM),width={width},height={height},framerate={fps}/1 ! "
+        f"nvvidconv flip-method=2 ! "
+        f"video/x-raw,format=BGRx ! "
+        f"videoconvert ! "
+        f"video/x-raw,format=BGR ! "
+        f"appsink"
+    )
     # open the camera
-    camera = cv2.VideoCapture(dev, cv2.CAP_V4L2)
-    # if it's not opened,
+    camera = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+
+    # if it didn't open,
     if not camera.isOpened():
-        # error out.
+        # error out
         logger.error("Camera not opened.")
         exit(1)
-
-    # set dimensions
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    # set encoding (MJPEG)
-    camera.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-    # set FPS
-    camera.set(cv2.CAP_PROP_FPS, fps)
-
-    # get the actual FPS (may return -1, cameras may not always work with this)
-    actual_fps = camera.get(cv2.CAP_PROP_FPS)
-    logger.info(f"Camera opened at FPS {actual_fps} ({fps} specified).")
+    logger.info(f"Camera opened via GStreamer at {width}x{height} @ {fps}fps.")
 
     return camera
 
-# create a directory for logging and a specific directory for a specified session of logging
-def create_logging_directory(parent_dir, session_dir):
-    output_dir = os.path.join(parent_dir, session_dir)
-    os.makedirs(output_dir, exist_ok=True)
-    return output_dir
-
-# write log data to a specific file under a specified directory
-def write_log(data, output_dir, unique_name):
-    file_path = os.path.join(output_dir, f"{unique_name}.json")
-    with open(file_path, 'w') as f:
-        json.dump(data, f)
-    return file_path
-
-# for running in parallel
-def encode_and_write(frame, cmd_vel, relative_time, frame_index, output_dir, logger):
-    _, buffer = cv2.imencode(".jpg", frame)
-    frame_encoded = base64.b64encode(buffer).decode("utf-8")
-
-    data = {
-        "relative_time": relative_time,
-        "linear_x": cmd_vel.linear.x,
-        "angular_z": cmd_vel.angular.z,
-        "frame": frame_encoded
-    }
-
-    log_location = write_log(data=data, output_dir=output_dir, unique_name=f"frame_{frame_index}")
-    logger.info(f"{frame_index} wrote at {log_location}.")
+def write_frame(destination, frame):
+    cv2.imwrite(destination, frame)
 
 class LeRobotLogger(Node):
-    def __init__(self):
+    def __init__(self, session_name=None):
         super().__init__("LeRobotLogger")
-        self.get_logger().info("LeRobotLogger initialized")
+        self.get_logger().info("LeRobotLogger initialized.")
 
         ######################################################################## LOGGING
-        # output directory we'll be logging to
-        self.output_dir = create_logging_directory(parent_dir=get_package_share_directory("lerobot_logging"), session_dir=f"session_{self.get_clock().now().nanoseconds}")
-        self.get_logger().info(f"Output directory set as {self.output_dir}")
-        # a thread we can use for handling writes
+        # if the user didn't provide a session name,
+        if session_name is None:
+            # default to just the current nanosecond after 1970
+            session_name = f"{self.get_clock().now().nanoseconds}"
+        session_name = f"session_{session_name}"
+        # output directory is under share for the lerobot_logging ROS package and under a specific directory name
+        self.output_dir = os.path.join(get_package_share_directory("lerobot_logging"), f"{session_name}")
+        # make the directories if they don't exist
+        os.makedirs(self.output_dir, exist_ok=True)
+        # the output file name 
+        self.output_file_name = os.path.join(self.output_dir, f"{session_name}.json")
+
+        # output file object
+        self.output_file = open(self.output_file_name, 'a')
+        # for formatting. REQUIRES that we append ']' later.
+        self.output_file.write('[')
+        # for marking that the first log entry doesn't need a leading ','
+        self.first_log = True
+        # for deferring the work of writing MJPEGs
         self.write_executor = ThreadPoolExecutor(max_workers=5)
+
+        self.get_logger().info(f"Output file set as {self.output_file_name}")
 
         ######################################################################## SUBSCRIPTION TO cmd_vel
         # cmd_vel variable (filled by a subscription to cmd_vel)
         self.cmd_vel = None
         # subscribe to cmd_vel
-        self.create_subscription(Twist, "cmd_vel", self.cmd_vel_callback, 1)
+        self.create_subscription(Twist, "cmd_vel", self.cmd_vel_intervaller, 1)
 
         ######################################################################## CAMERA INITIALIZATION & CAPTURING
         # the total count of frames that have been logged
@@ -92,7 +76,7 @@ class LeRobotLogger(Node):
         # the FPS the camera will be requested to run at
         self.fps = 30
         # creating the camera object
-        self.camera = open_camera(dev="/dev/video0", fps=self.fps, logger=self.get_logger(), width=640, height=480, force=True)
+        self.camera = open_camera(camera_index=0, fps=self.fps, logger=self.get_logger(), width=640, height=480)
         # the latest frame captured by the camera capture thread
         self.frame = None
         # whether we're currently capturing the camera view or not
@@ -101,58 +85,125 @@ class LeRobotLogger(Node):
         self.camera_capture_thread = threading.Thread(target=self.camera_capture_thread_function, daemon=True)
         # start that thread
         self.camera_capture_thread.start()
+        # for storing the starting time of the first frame
+        self.starting_time = None
         # every 1/FPS seconds, get the latest frame and cmd_vel and dump a log of it
         self.create_timer(1.0 / self.fps, self.dump_intervaller)
+        self.get_logger().info(f"Started logging at a {1.0 / self.fps} second(s) interval.")
 
-    def cmd_vel_callback(self, msg):
+    def cmd_vel_intervaller(self, msg):
         self.cmd_vel = msg
 
     def camera_capture_thread_function(self):
-        # spam camera.read() so latest_frame is always as fresh as possible
+        # spam camera.read() so frame is always as fresh as possible
         while self.is_capturing_camera:
             ret, frame = self.camera.read()
             if ret:
                 self.frame = frame
 
     def dump_intervaller(self):
-        if self.cmd_vel is None:
-            self.get_logger().warn("cmd_vel is None.")
+        # don't dump anything if we're not capturing camera frames
+        if not self.is_capturing_camera:
+            self.get_logger().warn("is_capturing_camera is False.")
             return
 
-        # snapshot the latest frame from the capture thread
-        frame = self.frame
-        if frame is None:
-            self.get_logger().warn("frame is None.")
-            return
+        relative_time = 0
+        linear_x = 0
+        angular_z = 0
+        frame_name = None
 
-        self.get_logger().info(f"{self.frame_count} frame received.")
-        relative_time = self.frame_count / self.fps
+        # if we have a starting time,
+        if self.starting_time is not None:
+            # calculate the difference between now and then, in seconds
+            relative_time =  (self.get_clock().now() - self.starting_time).nanoseconds / 1e9
+        else:
+            # leave relative time as 0 since this is the first frame. just store the current time for future frames.
+            self.starting_time = self.get_clock().now()
+        
+        if self.cmd_vel is not None:
+            linear_x = self.cmd_vel.linear.x
+            angular_z = self.cmd_vel.angular.z
+
+        if self.frame is not None:
+            frame_name = f"frame_{self.frame_count}.jpg"
+            # defer writing the frame to another thread.
+            self.write_executor.submit(write_frame, os.path.join(self.output_dir, frame_name), self.frame)
+        
+        data = {
+            "relative_time": relative_time,
+            "linear_x": linear_x,
+            "angular_z": angular_z,
+            "frame_name": frame_name
+        }
+
+        # write this data into the file. this MUST be synchronous.
+        if self.first_log:
+            # no leading comma for the first log.
+            self.output_file.write(json.dumps(data) + '\n')
+            self.first_log = False
+        else:
+            # leading commas for logs that aren't the first.
+            self.output_file.write(',' + json.dumps(data) + '\n')
+
+        self.get_logger().info(f"Caught frame {self.frame_count}: {data}")
         self.frame_count += 1
+        
+    
+    # class cleanup
+    def finish(self):
+        self.get_logger().info("Cleaning up LeRobotLogger...")
 
-        self.write_executor.submit(encode_and_write, frame, self.cmd_vel, relative_time, self.frame_count - 1, self.output_dir, self.get_logger())
+        # stop the looping thread and the timer
+        self.is_capturing_camera = False
+
+        # if the thread was initialized,
+        if hasattr(self, "camera_capture_thread"):
+            # join the thread
+            self.camera_capture_thread.join(timeout=2.0)
+            self.camera_capture_thread = None
+        
+        # if we have an output file,
+        if hasattr(self, "output_file"):
+            # write the last bracket (for valid JSON syntax)
+            self.output_file.write(']')
+            # close the file
+            self.output_file.close()
+            # null the file out
+            self.output_file = None
+
+        # if the camera was initialized,
+        if hasattr(self, "camera"):
+            # try to release ownership of it.
+            try:
+                self.camera.release()
+                self.camera = None
+                cv2.destroyAllWindows()
+            except:
+                pass
+        
+        # if the write executor was initialized,
+        if hasattr(self, "write_executor"):
+            # shut it down
+            self.write_executor.shutdown(wait=True)
+            # null it out
+            self.write_executor = None
+        
+        self.get_logger().info("Finished cleaning LeRobotLogger.")
 
 def main(args=None):
-    rclpy.init(args=args)
-    node = LeRobotLogger()
+    parser = argparse.ArgumentParser(description="LeRobotLogger node")
+    parser.add_argument('--session-name', type=str, default=None, help='The name of the session of this run of logging. Reflected in the log file name and the session directory.')
+    
+    parsed_args, remaining_args = parser.parse_known_args(args)
+    
+    rclpy.init(args=remaining_args)
+    node = LeRobotLogger(session_name=parsed_args.session_name)
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        node.write_executor.shutdown(wait=True)
-        # stop the looping thread
-        node.is_capturing_camera = False
-        if hasattr(node, "camera_capture_thread"):
-            # join the thread
-            node.camera_capture_thread.join(timeout=2.0)
-        if hasattr(node, "camera"):
-            try:
-                # release the camera from out possession
-                node.camera.release()
-                node.camera = None
-                cv2.destroyAllWindows()
-            except:
-                pass
+        node.finish()
         node.destroy_node()
         rclpy.shutdown()
 
