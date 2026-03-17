@@ -34,9 +34,6 @@ def open_camera(camera_index, fps, logger, width, height):
 
     return camera
 
-def write_frame(destination, frame):
-    cv2.imwrite(destination, frame)
-
 class LeRobotLogger(Node):
     def __init__(self, session_name=None, use_camera_subscription=False):
         super().__init__("LeRobotLogger")
@@ -62,8 +59,6 @@ class LeRobotLogger(Node):
         self.output_file.write('[')
         # for marking that the first log entry doesn't need a leading ','
         self.first_log = True
-        # for deferring the work of writing MJPEGs
-        self.write_executor = ThreadPoolExecutor(max_workers=5)
 
         self.get_logger().info(f"Output file set as {self.output_file_name}")
 
@@ -78,6 +73,8 @@ class LeRobotLogger(Node):
         self.frame_count = 0
         # the FPS the camera will be requested to run at
         self.fps = 30
+        self.width = 640
+        self.height = 480
         # the latest frame captured by the camera capture thread
         self.frame = None
         # whether we're currently capturing the camera view or not
@@ -85,7 +82,7 @@ class LeRobotLogger(Node):
         # if we shouldn't use a subscription for updating the frame,
         if not use_camera_subscription:
             # creating the camera object
-            self.camera = open_camera(camera_index=0, fps=self.fps, logger=self.get_logger(), width=640, height=480)
+            self.camera = open_camera(camera_index=0, fps=self.fps, logger=self.get_logger(), width=self.width, height=self.height)
             # create a thread for specifically capturing camera output (spams camera.read() to keep latest_frame fresh)
             self.camera_capture_thread = threading.Thread(target=self.rect_img_raw_thread_intervaller, daemon=True)
             # start that thread
@@ -95,6 +92,15 @@ class LeRobotLogger(Node):
             self.create_subscription(Image, "/camera/image_raw", self.rect_img_raw_subscription_intervaller, 1)
         # for storing the starting time of the first frame
         self.starting_time = None
+
+        # for writing frames
+        self.video_writer = cv2.VideoWriter(
+            os.path.join(self.output_dir, f"{session_name}.mp4"),
+            cv2.VideoWriter_fourcc(*"mp4v"),
+            self.fps,
+            (self.width, self.height)
+        )
+
         # every 1/FPS seconds, get the latest frame and cmd_vel and dump a log of it
         self.create_timer(1.0 / self.fps, self.dump_intervaller)
         self.get_logger().info(f"Started logging at a {1.0 / self.fps} second(s) interval.")
@@ -122,7 +128,7 @@ class LeRobotLogger(Node):
         relative_time = 0
         linear_x = 0
         angular_z = 0
-        frame_name = None
+        frame_index = self.frame_count
 
         # if we have a starting time,
         if self.starting_time is not None:
@@ -137,15 +143,16 @@ class LeRobotLogger(Node):
             angular_z = self.cmd_vel.angular.z
 
         if self.frame is not None:
-            frame_name = f"frame_{self.frame_count}.jpg"
-            # defer writing the frame to another thread.
-            self.write_executor.submit(write_frame, os.path.join(self.output_dir, frame_name), self.frame)
+            # write the frame to the video we're making
+            self.video_writer.write(self.frame)
+            # increment the frame count (we got a frame)
+            self.frame_count += 1
         
         data = {
             "relative_time": relative_time,
             "linear_x": linear_x,
             "angular_z": angular_z,
-            "frame_name": frame_name
+            "frame_index": frame_index
         }
 
         # write this data into the file. this MUST be synchronous.
@@ -157,8 +164,7 @@ class LeRobotLogger(Node):
             # leading commas for logs that aren't the first.
             self.output_file.write(',' + json.dumps(data) + '\n')
 
-        self.get_logger().info(f"Caught frame {self.frame_count}: {data}")
-        self.frame_count += 1
+        self.get_logger().info(f"Caught frame {frame_index}: {data}")
         
     
     # class cleanup
@@ -193,12 +199,9 @@ class LeRobotLogger(Node):
             except:
                 pass
         
-        # if the write executor was initialized,
-        if hasattr(self, "write_executor"):
-            # shut it down
-            self.write_executor.shutdown(wait=True)
-            # null it out
-            self.write_executor = None
+        if hasattr(self, "video_writer"):
+            self.video_writer.release()
+            self.video_writer = None
         
         self.get_logger().info("Finished cleaning LeRobotLogger.")
 
