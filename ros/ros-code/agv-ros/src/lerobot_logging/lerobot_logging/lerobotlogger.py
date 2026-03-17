@@ -9,6 +9,8 @@ import threading
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from ament_index_python.packages import get_package_share_directory
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
 
 def open_camera(camera_index, fps, logger, width, height):
     pipeline = (
@@ -36,9 +38,10 @@ def write_frame(destination, frame):
     cv2.imwrite(destination, frame)
 
 class LeRobotLogger(Node):
-    def __init__(self, session_name=None):
+    def __init__(self, session_name=None, use_camera_subscription=False):
         super().__init__("LeRobotLogger")
         self.get_logger().info("LeRobotLogger initialized.")
+        self.cvbridge = CvBridge()
 
         ######################################################################## LOGGING
         # if the user didn't provide a session name,
@@ -75,16 +78,21 @@ class LeRobotLogger(Node):
         self.frame_count = 0
         # the FPS the camera will be requested to run at
         self.fps = 30
-        # creating the camera object
-        self.camera = open_camera(camera_index=0, fps=self.fps, logger=self.get_logger(), width=640, height=480)
         # the latest frame captured by the camera capture thread
         self.frame = None
         # whether we're currently capturing the camera view or not
         self.is_capturing_camera = True
-        # create a thread for specifically capturing camera output (spams camera.read() to keep latest_frame fresh)
-        self.camera_capture_thread = threading.Thread(target=self.camera_capture_thread_function, daemon=True)
-        # start that thread
-        self.camera_capture_thread.start()
+        # if we shouldn't use a subscription for updating the frame,
+        if not use_camera_subscription:
+            # creating the camera object
+            self.camera = open_camera(camera_index=0, fps=self.fps, logger=self.get_logger(), width=640, height=480)
+            # create a thread for specifically capturing camera output (spams camera.read() to keep latest_frame fresh)
+            self.camera_capture_thread = threading.Thread(target=self.rect_img_raw_thread_intervaller, daemon=True)
+            # start that thread
+            self.camera_capture_thread.start()
+        else:
+            # otherwise, use a subscription
+            self.create_subscription(Image, "/camera/image_raw", self.rect_img_raw_subscription_intervaller, 1)
         # for storing the starting time of the first frame
         self.starting_time = None
         # every 1/FPS seconds, get the latest frame and cmd_vel and dump a log of it
@@ -93,14 +101,18 @@ class LeRobotLogger(Node):
 
     def cmd_vel_intervaller(self, msg):
         self.cmd_vel = msg
+    
+    def rect_img_raw_subscription_intervaller(self, msg):
+        if self.is_capturing_camera:
+            self.frame = self.cvbridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
-    def camera_capture_thread_function(self):
+    def rect_img_raw_thread_intervaller(self):
         # spam camera.read() so frame is always as fresh as possible
         while self.is_capturing_camera:
             ret, frame = self.camera.read()
             if ret:
                 self.frame = frame
-
+    
     def dump_intervaller(self):
         # don't dump anything if we're not capturing camera frames
         if not self.is_capturing_camera:
@@ -192,12 +204,13 @@ class LeRobotLogger(Node):
 
 def main(args=None):
     parser = argparse.ArgumentParser(description="LeRobotLogger node")
-    parser.add_argument('--session-name', type=str, default=None, help='The name of the session of this run of logging. Reflected in the log file name and the session directory.')
+    parser.add_argument("--session-name", type=str, default=None, help="The name of the session of this run of logging. Reflected in the log file name and the session directory.")
+    parser.add_argument("--run-cam-ros", type=int, default=0, help="0 if we're running the camera with GStreamer, 1 if it's with ROS.")
     
     parsed_args, remaining_args = parser.parse_known_args(args)
     
     rclpy.init(args=remaining_args)
-    node = LeRobotLogger(session_name=parsed_args.session_name)
+    node = LeRobotLogger(session_name=parsed_args.session_name, use_camera_subscription=(parsed_args.run_cam_ros == 1))
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
