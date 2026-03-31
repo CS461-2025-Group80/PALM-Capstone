@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+from datetime import datetime
 
 def open_camera(camera_index, fps, logger, width, height):
     pipeline = (
@@ -20,55 +21,85 @@ def open_camera(camera_index, fps, logger, width, height):
         f"video/x-raw,format=BGRx ! "
         f"videoconvert ! "
         f"video/x-raw,format=BGR ! "
-        f"appsink"
+        f"appsink drop=true max-buffers=1"
     )
-    # open the camera
     camera = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
 
-    # if it didn't open,
     if not camera.isOpened():
-        # error out
         logger.error("Camera not opened.")
         exit(1)
     logger.info(f"Camera opened via GStreamer at {width}x{height} @ {fps}fps.")
-
     return camera
 
 class LeRobotLogger(Node):
-    def __init__(self, session_name=None, use_camera_subscription=False):
+    def __init__(self, session_name=None, use_camera_subscription=False, session_interval=0.0):
         super().__init__("LeRobotLogger")
         self.get_logger().info("LeRobotLogger initialized.")
-        self.cvbridge = CvBridge()
 
-        ######################################################################## LOGGING
+        videowriter_file = self.setup_logging(session_name=session_name, session_interval=session_interval)
+        self.setup_subscriptions()
+        self.setup_camera(use_camera_subscription=use_camera_subscription, filename=videowriter_file)
+
+    ###############################################################################################
+    ############################################ SETUP ############################################
+    ###############################################################################################
+
+    # preferably, this should be set up first.
+    def setup_logging(self, session_name, session_interval):
         # if the user didn't provide a session name,
         if session_name is None:
-            # default to just the current nanosecond after 1970
-            session_name = f"{self.get_clock().now().nanoseconds}"
-        session_name = f"session_{session_name}"
-        # output directory is under share for the lerobot_logging ROS package and under a specific directory name
-        self.output_dir = os.path.join(get_package_share_directory("lerobot_logging"), f"{session_name}")
-        # make the directories if they don't exist
-        os.makedirs(self.output_dir, exist_ok=True)
-        # the output file name 
-        self.output_file_name = os.path.join(self.output_dir, f"{session_name}.json")
+            # nanoseconds after 1970
+            now_ns = self.get_clock().now().nanoseconds
+            # datetime (based on seconds after 1970)
+            now_dt = datetime.fromtimestamp(now_ns / 1e9)
+            # session name follows "day month year hour minute"
+            session_name = now_dt.strftime("%d%m%Y%H%M")        
 
-        # output file object
-        self.output_file = open(self.output_file_name, 'a')
-        # for formatting. REQUIRES that we append ']' later.
-        self.output_file.write('[')
+        self.working_dir = os.path.join(get_package_share_directory("lerobot_logging"), f"session_{session_name}")
+
+        # make the directories if they don't exist
+        os.makedirs(self.working_dir, exist_ok=True)
+
+        # just default to using the working directory as the output directory
+        output_dir = self.working_dir
+        content_name = session_name
+        
+        if session_interval != 0:
+            self.session_interval = session_interval
+
+            # current ID of the session (from 0 to infinity)
+            self.current_session_id = 0
+
+            content_name = f"session_{self.current_session_id}"
+
+            # the current output directory will change based on the interval
+            output_dir = os.path.join(self.working_dir, content_name)
+
+        
+        # make all needed directories
+        os.makedirs(output_dir, exist_ok=True)
+        # the JSON
+        output_file_name = os.path.join(output_dir, f"{content_name}.json")
+
+        # open the file
+        self.open_file(output_file_name)
         # for marking that the first log entry doesn't need a leading ','
         self.first_log = True
+        self._rotating = False
 
-        self.get_logger().info(f"Output file set as {self.output_file_name}")
-
-        ######################################################################## SUBSCRIPTION TO cmd_vel
+        # return the location of the MP4 (for initializing the camera's video writer)
+        return os.path.join(output_dir, f"{content_name}.mp4")
+    
+    def setup_subscriptions(self):
         # cmd_vel variable (filled by a subscription to cmd_vel)
         self.cmd_vel = None
         # subscribe to cmd_vel
         self.create_subscription(Twist, "cmd_vel", self.cmd_vel_intervaller, 1)
+    
+    # must occur after logging has been set up.
+    def setup_camera(self, use_camera_subscription, filename):
+        self.cvbridge = CvBridge()
 
-        ######################################################################## CAMERA INITIALIZATION & CAPTURING
         # the total count of frames that have been logged
         self.frame_count = 0
         # the FPS the camera will be requested to run at
@@ -94,16 +125,82 @@ class LeRobotLogger(Node):
         self.starting_time = None
 
         # for writing frames
+        self.create_video_writer(filename=filename)
+
+        # every 1/FPS seconds, get the latest frame and cmd_vel and dump a log of it
+        self.create_timer(1.0 / self.fps, self.dump_intervaller)
+        self.get_logger().info(f"Started logging at a {1.0 / self.fps} second(s) interval.")
+
+    ###############################################################################################
+    ############################################ UTIL #############################################
+    ###############################################################################################
+    ################ some useful functions.
+    
+    def open_file(self, name):
+        if hasattr(self, "output_file"):
+            self.close_file()
+
+        # open the file in append mode
+        self.output_file = open(name, 'a')
+        # start the JSON with a leading bracket
+        self.output_file.write('[')
+
+        self.get_logger().info(f"Output file set as {name}")
+
+    def close_file(self):
+        # write the last bracket (for valid JSON syntax)
+        self.output_file.write(']')
+        # close the file
+        self.output_file.close()
+        # null the file out
+        self.output_file = None
+    
+    def try_increment_session(self):
+        if not hasattr(self, "session_interval"):
+            return
+
+        elapsed_seconds = self.frame_count / self.fps
+        interval_seconds = self.session_interval * 60
+
+        if elapsed_seconds >= interval_seconds:
+            self.get_logger().info(f"session_{self.current_session_id} reached limit, rotating sessions.")
+
+            # increment the session id
+            self.current_session_id += 1
+            # content name (name of the items o the files in output directories)
+            content_name = f"session_{self.current_session_id}"
+            # output dir is named identically to the items, just lacks an extension
+            output_dir = os.path.join(self.working_dir, content_name)
+            # make the directories
+            os.makedirs(output_dir, exist_ok=True)
+
+            # JSON
+            json_file_name = os.path.join(output_dir, f"{content_name}.json")
+            self.open_file(json_file_name)
+            self.first_log = True
+
+            # MP4
+            video_file_name = os.path.join(output_dir, f"{content_name}.mp4")
+            self.create_video_writer(video_file_name)
+
+            # reset the frame counter
+            self.frame_count = 0
+    
+    def create_video_writer(self, filename):
+        if hasattr(self, "video_writer"):
+            self.video_writer.release()
+
         self.video_writer = cv2.VideoWriter(
-            os.path.join(self.output_dir, f"{session_name}.mp4"),
+            filename,
             cv2.VideoWriter_fourcc(*"mp4v"),
             self.fps,
             (self.width, self.height)
         )
 
-        # every 1/FPS seconds, get the latest frame and cmd_vel and dump a log of it
-        self.create_timer(1.0 / self.fps, self.dump_intervaller)
-        self.get_logger().info(f"Started logging at a {1.0 / self.fps} second(s) interval.")
+    ###############################################################################################
+    ######################################### INTERVALLERS ########################################
+    ###############################################################################################
+    ################ functions that are periodically called.
 
     def cmd_vel_intervaller(self, msg):
         self.cmd_vel = msg
@@ -124,6 +221,9 @@ class LeRobotLogger(Node):
         if not self.is_capturing_camera:
             self.get_logger().warn("is_capturing_camera is False.")
             return
+
+        # try to increment the file log if needed (nothing done if self.session_interval is undefined)
+        self.try_increment_session()
 
         relative_time = 0
         linear_x = 0
@@ -166,7 +266,11 @@ class LeRobotLogger(Node):
 
         self.get_logger().info(f"Caught frame {frame_index}: {data}")
         
-    
+    ###############################################################################################
+    ########################################### CLEANUP ###########################################
+    ###############################################################################################
+    ################ a single function for cleaning up the class. highly recommended to call this when done.
+
     # class cleanup
     def finish(self):
         self.get_logger().info("Cleaning up LeRobotLogger...")
@@ -182,12 +286,7 @@ class LeRobotLogger(Node):
         
         # if we have an output file,
         if hasattr(self, "output_file"):
-            # write the last bracket (for valid JSON syntax)
-            self.output_file.write(']')
-            # close the file
-            self.output_file.close()
-            # null the file out
-            self.output_file = None
+            self.close_file()
 
         # if the camera was initialized,
         if hasattr(self, "camera"):
@@ -209,11 +308,12 @@ def main(args=None):
     parser = argparse.ArgumentParser(description="LeRobotLogger node")
     parser.add_argument("--session-name", type=str, default=None, help="The name of the session of this run of logging. Reflected in the log file name and the session directory.")
     parser.add_argument("--run-cam-ros", type=int, default=0, help="0 if we're running the camera with GStreamer, 1 if it's with ROS.")
+    parser.add_argument("--session-interval", type=float, default=0.0, help="If nonzero, this will break the session into having subsessions that are all at maximum the time in minutes you specify.")
     
     parsed_args, remaining_args = parser.parse_known_args(args)
     
     rclpy.init(args=remaining_args)
-    node = LeRobotLogger(session_name=parsed_args.session_name, use_camera_subscription=(parsed_args.run_cam_ros == 1))
+    node = LeRobotLogger(session_name=parsed_args.session_name, use_camera_subscription=(parsed_args.run_cam_ros == 1), session_interval=parsed_args.session_interval)
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
