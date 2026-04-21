@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 import cv2
 from geometry_msgs.msg import Twist
+from um982_gps_manual.msg import UM982Fix
 import json
 import os
 import subprocess
@@ -95,6 +96,10 @@ class LeRobotLogger(Node):
         self.cmd_vel = None
         # subscribe to cmd_vel
         self.create_subscription(Twist, "cmd_vel", self.cmd_vel_intervaller, 1)
+        # gps_data variable, filled by the subscrption to gps/data
+        self.gps_data = None
+        # subscribe to gps
+        self.create_subscription(UM982Fix, "gps", self.gps_data_intervaller, 1)
     
     # must occur after logging has been set up.
     def setup_camera(self, use_camera_subscription, filename):
@@ -205,6 +210,9 @@ class LeRobotLogger(Node):
     def cmd_vel_intervaller(self, msg):
         self.cmd_vel = msg
     
+    def gps_data_intervaller(self, msg):
+        self.gps_data = msg
+    
     def rect_img_raw_subscription_intervaller(self, msg):
         if self.is_capturing_camera:
             self.frame = self.cvbridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -228,6 +236,9 @@ class LeRobotLogger(Node):
         relative_time = 0
         linear_x = 0
         angular_z = 0
+        lat = None
+        lon = None
+        heading = None
         frame_index = self.frame_count
 
         # if we have a starting time,
@@ -248,11 +259,19 @@ class LeRobotLogger(Node):
             # increment the frame count (we got a frame)
             self.frame_count += 1
         
+        if self.gps_data is not None:
+            lat = self.gps_data.latitude
+            lon = self.gps_data.longitude
+            heading = gps_data.heading
+        
         data = {
             "relative_time": relative_time,
             "linear_x": linear_x,
             "angular_z": angular_z,
-            "frame_index": frame_index
+            "frame_index": frame_index,
+            "lat": lat,
+            "lon": lon,
+            "heading": heading
         }
 
         # write this data into the file. this MUST be synchronous.
