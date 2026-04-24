@@ -3,7 +3,7 @@
     <p class="text-center text-gray-600 text-sm">
       The PALM Capstone was created by REVOBOTS for testing and researching strategies for products.
       <br>
-      The idea and relevant product are their own and not at all created by the PALM Capstone team.
+      The idea and relevant product are owned by REVOBOTS and not at all created by the PALM Capstone team.
     </p>
   </div>
 </footer>
