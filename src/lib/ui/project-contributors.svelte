@@ -61,7 +61,6 @@
 </script>
 
 <section class="py-12 px-4 max-w-6xl mx-auto">
-  <h2 class="text-4xl font-bold mb-12 text-center">Contributions</h2>
   {#each Object.keys(contributors) as key}
     {@const key_casted = key as keyof (typeof contributors)}
     <div class="mb-16">

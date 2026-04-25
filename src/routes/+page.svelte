@@ -1,5 +1,5 @@
 <script>
-	import Palm from '$lib/ui/palm.svelte';
+	import Main from '$lib/ui/main.svelte';
 </script>
 
-<Palm/>
+<Main/>
