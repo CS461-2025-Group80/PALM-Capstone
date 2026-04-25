@@ -1,52 +1,59 @@
 <script lang="ts">
-    import { User, ExternalLink } from 'lucide-svelte';   
+    import { User, ExternalLink } from 'lucide-svelte';
     const contributors = {
         "REVOBOTS": {
             "description": "A robots company that created the PALM Capstone at Oregon State University to research and explore product feasibility.",
             "website": "https://revobots.ai/",
-            "and_others": true,
+            "and_others": "...and other members of REVOBOTS.",
             "members": [
                 {
                     "name": "Rahul Khanna",
                     "description": "asdf",
-                    "photo": "rahul.jpg"
+                    "photo": "rahul.jpg",
+                    "linkedin": "https://www.linkedin.com/in/rahul-khanna-ph-d-6a02712/"
                 },
                 {
                     "name": "Aditya Raj",
                     "description": "asdf",
-                    "photo": null
+                    "photo": "aditya.jpg",
+                    "linkedin": "https://www.linkedin.com/in/aditya-raj-aadi0032007/"
                 },
                 {
                     "name": "Derick John",
                     "description": "asdf",
-                    "photo": null
+                    "photo": "derick.jpg",
+                    "linkedin": "https://www.linkedin.com/in/derick-john-67459a20a/"
                 },
                 {
                     "name": "Joshua Negreanu",
                     "description": "asdf",
-                    "photo": null
+                    "photo": "joshua.jpg",
+                    "linkedin": "https://www.linkedin.com/in/joshnegreanu/"
                 }
             ]
         },
         "PALM Capstone Team": {
             "description": "Consists of Oregon State University students that volunteered to join the PALM Capstone.",
             "website": null,
-            "and_others": false,
+            "and_others": null,
             "members": [
                 {
                     "name": "Justice Peyton",
                     "description": "asdf",
-                    "photo": null
+                    "photo": "justice.jpg",
+                    "linkedin": "https://www.linkedin.com/in/justice-peyton/"
                 },
                 {
                     "name": "Andrew Fief",
                     "description": "asdf",
-                    "photo": "andrew.jpg"
+                    "photo": "andrew.jpg",
+                    "linkedin": "https://www.linkedin.com/in/andrew-fief/"
                 },
                 {
                     "name": "Luke Hashbarger",
                     "description": "asdf",
-                    "photo": "luke.jpg"
+                    "photo": "luke.jpg",
+                    "linkedin": "https://www.linkedin.com/in/luke-hashbarger-5936a4272/"
                 }
             ]
         }
@@ -77,14 +84,21 @@
                 <User size={64} class="text-gray-400" />
               </div>
             {/if}
-            <h4 class="text-lg font-semibold mb-2">{contributor.name}</h4>
+            <div class="flex items-center gap-2 mb-2">
+              <h4 class="text-lg font-semibold">{contributor.name}</h4>
+              {#if contributor.linkedin}
+                <a href={contributor.linkedin} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">
+                    <img src="/linkedin.svg" alt="LinkedIn" class="w-5 h-5" />
+                </a>
+              {/if}
+            </div>
             <p class="text-gray-700">{contributor.description}</p>
           </div>
         {/each}
         {#if contributors[key_casted].and_others}
-        <div>
-            <h4>
-                ...and other members of REVOBOTS.
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex items-center justify-center min-h-full">
+            <h4 class="text-lg font-semibold text-center text-gray-700">
+                {contributors[key_casted].and_others}
             </h4>
         </div>
         {/if}
