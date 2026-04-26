@@ -8,25 +8,25 @@
             "members": [
                 {
                     "name": "Rahul Khanna",
-                    "description": "asdf",
+                    "description": "REVOBOTS lead. Provided the team resources and motivation for development.",
                     "photo": "rahul.jpg",
                     "linkedin": "https://www.linkedin.com/in/rahul-khanna-ph-d-6a02712/"
                 },
                 {
                     "name": "Aditya Raj",
-                    "description": "asdf",
+                    "description": "Project lead. Worked on image segmentation and developing a method of autonomous driving.",
                     "photo": "aditya.jpg",
                     "linkedin": "https://www.linkedin.com/in/aditya-raj-aadi0032007/"
                 },
                 {
                     "name": "Derick John",
-                    "description": "asdf",
+                    "description": "Vision-focused. Worked on image segmentation for informing a robot of where to drive.",
                     "photo": "derick.jpg",
                     "linkedin": "https://www.linkedin.com/in/derick-john-67459a20a/"
                 },
                 {
                     "name": "Joshua Negreanu",
-                    "description": "asdf",
+                    "description": "A member of a previous PALM capstone team. Provided the team resources and guidance.",
                     "photo": "joshua.jpg",
                     "linkedin": "https://www.linkedin.com/in/joshnegreanu/"
                 }
@@ -39,19 +39,19 @@
             "members": [
                 {
                     "name": "Justice Peyton",
-                    "description": "asdf",
+                    "description": "ROS- and data logging-focused. Developed LIDAR mapping and pathfinding, data logging, software reading GPS devices, and internet-based controlling and camera viewing for the MyAGV.",
                     "photo": "justice.jpg",
                     "linkedin": "https://www.linkedin.com/in/justice-peyton/"
                 },
                 {
                     "name": "Andrew Fief",
-                    "description": "asdf",
+                    "description": "Vision-focused.",
                     "photo": "andrew.jpg",
                     "linkedin": "https://www.linkedin.com/in/andrew-fief/"
                 },
                 {
                     "name": "Luke Hashbarger",
-                    "description": "asdf",
+                    "description": null,
                     "photo": "luke.jpg",
                     "linkedin": "https://www.linkedin.com/in/luke-hashbarger-5936a4272/"
                 }
@@ -87,18 +87,20 @@
               <h4 class="text-lg font-semibold">{contributor.name}</h4>
               {#if contributor.linkedin}
                 <a href={contributor.linkedin} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">
-                    <img src="/linkedin.svg" alt="LinkedIn" class="w-5 h-5" />
+                  <img src="/linkedin.svg" alt="LinkedIn" class="w-5 h-5" />
                 </a>
               {/if}
             </div>
-            <p class="text-gray-700">{contributor.description}</p>
+            {#if contributor.description}
+              <p class="text-gray-700">{contributor.description}</p>
+            {/if}
           </div>
         {/each}
         {#if contributors[key_casted].and_others}
         <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex items-center justify-center min-h-full">
-            <h4 class="text-lg font-semibold text-center text-gray-700">
-                {contributors[key_casted].and_others}
-            </h4>
+          <h4 class="text-lg font-semibold text-center text-gray-700">
+            {contributors[key_casted].and_others}
+          </h4>
         </div>
         {/if}
       </div>
