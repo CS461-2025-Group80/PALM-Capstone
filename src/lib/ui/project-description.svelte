@@ -47,7 +47,7 @@
     <h2 class={HEADING_STYLES.h2}>PALM Contributions & Experiments</h2>
     <p class={LARGE_DESCRIPTION}>
         The Capstone team develops on a MyAGV, an Elephant Robotics-branded robot, while REVOBOTS works with the final product, the Taskbot Scout.
-        The Capstone team has focused on a variety of topics: ROS hardware implementation, LiDAR mapping, map traversal, GPS implementation, 
+        The Capstone team has focused on a variety of topics: ROS hardware implementation, LiDAR mapping, map traversal, Teleoperation, GPS implementation, 
         video and GPS logging, YOLO, and hardware setup for future REVOBOTS Capstone teams.
         <br>
         The purpose of PALM adapted into becoming about feasibility research and experimenting with various strategies. This is elaborated more on below.

@@ -52,7 +52,7 @@
                 },
                 {
                     "name": "Luke Hashbarger",
-                    "description": null,
+                    "description": "Data collection and data logging",
                     "photo": "luke.jpg",
                     "linkedin": "https://www.linkedin.com/in/luke-hashbarger-5936a4272/"
                 }
