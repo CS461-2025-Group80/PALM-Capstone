@@ -1,5 +1,6 @@
 <script lang="ts">
     import { User, ExternalLink } from 'lucide-svelte';
+    import { MUTED_PARAGRAPH, CONTRIBUTOR_STYLES } from '../styles';
     const contributors = {
         "REVOBOTS": {
             "description": "A robots company that created the PALM Capstone at Oregon State University to research and explore product feasibility.",
@@ -72,14 +73,14 @@
           </a>
         {/if}
       </div>
-      <p class="text-gray-600 mb-8 mt-2">{contributors[key_casted].description}</p>
+      <p class={MUTED_PARAGRAPH}>{contributors[key_casted].description}</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {#each contributors[key_casted].members as contributor}
           <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             {#if contributor.photo}
-              <img src={`/contributor_pictures/${contributor.photo}`} alt="Picture of {contributor.name}" class="w-40 h-40 object-cover rounded-md mb-4"/>
+              <img src={`/contributor_pictures/${contributor.photo}`} alt="Picture of {contributor.name}" class={CONTRIBUTOR_STYLES.image}/>
             {:else}
-              <div class="w-40 h-40 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
+              <div class={CONTRIBUTOR_STYLES.placeholder}>
                 <User size={64} class="text-gray-400" />
               </div>
             {/if}
