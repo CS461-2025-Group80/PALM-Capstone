@@ -65,6 +65,9 @@
 <div>
     <h2 class={HEADING_STYLES.h2}>YOLO</h2>
     <p class={DESCRIPTION_PARAGRAPH}>
-        yolo (andrew)
+        YOLOv8 Nano was benchmarked on the robot’s onboard GPU (NVIDIA Tegra X1) to evaluate real-time inference performance, 
+        which proved to be limited. To improve efficiency, a Seeed reCamera was integrated to offload computer vision tasks from the GPU. 
+        The reCamera runs YOLOv11 independently and streams real-time predictions over the network, significantly reducing onboard GPU usage and 
+        allowing other processes to run more effectively.
     </p>
 </div>
