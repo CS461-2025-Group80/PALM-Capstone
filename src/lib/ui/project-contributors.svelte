@@ -46,7 +46,7 @@
                 },
                 {
                     "name": "Andrew Fief",
-                    "description": "Vision-focused.",
+                    "description": "Focused on computer vision and AI logistics including data transfer, data storage, labeling, and model benchmarking.",
                     "photo": "andrew.jpg",
                     "linkedin": "https://www.linkedin.com/in/andrew-fief/"
                 },
