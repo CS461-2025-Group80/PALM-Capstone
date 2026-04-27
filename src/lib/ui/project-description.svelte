@@ -8,6 +8,9 @@
         The PALM project was created by the startup REVOBOTS for exploring and researching feasible ideas for the Taskbot Scout.
         The Taskbot Scout is an autonomous robot that drives in parking lots to scan for parking violations and report any to campus parking enforcement.
         The PALM project works in parallel with this product's development.
+
+        You can view our github repository here: 
+        <a href="https://github.com/CS461-2025-Group80/PALM-Capstone" target="_blank" rel="noopener noreferrer">https://github.com/CS461-2025-Group80/PALM-Capstone </a>
     </p>
 </div>
 
