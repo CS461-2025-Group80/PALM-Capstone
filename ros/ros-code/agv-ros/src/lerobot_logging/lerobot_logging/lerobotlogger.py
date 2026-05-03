@@ -262,7 +262,7 @@ class LeRobotLogger(Node):
         if self.gps_data is not None:
             lat = self.gps_data.latitude
             lon = self.gps_data.longitude
-            heading = gps_data.heading
+            heading = self.gps_data.heading
         
         data = {
             "relative_time": relative_time,
