@@ -1,0 +1,61 @@
+TURTLEBOT + REALSENSE + RTAB-MAP CHEAT SHEET
+==========================================
+
+BASE TERMINAL (DO THIS IN EVERY TERMINAL)
+----------------------------------------
+cd ~/ros2-testing-workspace/ros/ros-code/turtlebot-ros
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+
+
+TERMINAL A — TURTLEBOT BASE (TF + ODOM)
+--------------------------------------
+ros2 launch turtlebot3_bringup robot.launch.py
+
+Verify:
+ros2 topic list | grep tf
+ros2 topic hz /odom
+
+
+TERMINAL B — INTEL REALSENSE CAMERA
+----------------------------------
+ros2 launch realsense2_camera rs_launch.py \
+  enable_color:=true \
+  enable_depth:=true \
+  align_depth.enable:=true \
+  color_fps:=15 \
+  depth_fps:=15
+
+Verify:
+ros2 topic hz /camera/camera/color/image_rect_raw
+ros2 topic hz /camera/camera/depth/image_rect_raw
+
+
+TERMINAL C — RTAB-MAP SLAM
+-------------------------
+cd ~/ros2-testing-workspace/ros/ros-code/turtlebot-ros
+source install/setup.bash
+ros2 launch turtlebot_rtabmap rtabmap_turtlebot.launch.py
+
+
+OPTIONAL CHECKS
+---------------
+ros2 node list | grep rtabmap
+ros2 topic info /camera/camera/color/image_rect_raw
+ros2 run tf2_tools view_frames
+
+
+RESET EVERYTHING (IF NEEDED)
+----------------------------
+pkill -f realsense
+pkill -f rtabmap
+pkill -f turtlebot
+
+
+STARTUP ORDER (IMPORTANT)
+-------------------------
+1. Source environment
+2. TurtleBot bringup
+3. RealSense camera
+4. RTAB-Map
+

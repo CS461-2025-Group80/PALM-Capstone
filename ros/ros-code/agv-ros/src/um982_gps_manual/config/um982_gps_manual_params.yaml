@@ -1,0 +1,5 @@
+um982_gps_manual:
+  ros__parameters:
+    port: /dev/ttyUSB0
+    baud: 115200
+    frame_id: gps

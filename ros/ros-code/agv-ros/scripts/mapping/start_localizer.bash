@@ -1,0 +1,1 @@
+ros2 launch myagv_navigation2 navigation2_active.launch.py

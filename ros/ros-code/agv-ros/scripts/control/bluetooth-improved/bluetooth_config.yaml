@@ -1,0 +1,27 @@
+
+joy_node:
+  ros__parameters:
+    device: /dev/input/js0
+    deadzone: 0.1
+    autorepeat_rate: 20.0
+
+teleop_twist_joy:
+  ros__parameters:
+    require_enable_button: false
+    axis_linear:
+      x: 1          # Left stick vertical -> forward/back
+    axis_angular:
+      yaw: 0        # Left stick horizontal -> turning
+
+    scale_linear:
+      x: 0.5        # Max linear speed (m/s)
+    scale_linear_turbo:
+      x: 1.0
+
+    scale_angular:
+      yaw: 1.0
+    scale_angular_turbo:
+      yaw: 1.5
+
+    enable_button: 6        # L1 - deadman switch (hold to move)
+    enable_turbo_button: 7  # R1 - hold for turbo
