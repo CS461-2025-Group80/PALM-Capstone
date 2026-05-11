@@ -92,6 +92,22 @@ def parse_hpr(fields):
     except Exception:
         return None
 
+def parse_ksxt(fields):
+    try:
+        return {
+            'heading': float(fields[1]) if fields[1].strip() else float('nan'),
+            'lat':     float(fields[2]) if fields[2].strip() else float('nan'),
+            'lon':     float(fields[3]) if fields[3].strip() else float('nan'),
+            'alt':     float(fields[4]) if fields[4].strip() else float('nan'),
+            'pitch':   float(fields[5]) if fields[5].strip() else float('nan'),
+            'roll':    float(fields[6]) if fields[6].strip() else float('nan'),
+            'speed':   float(fields[7]) if fields[7].strip() else float('nan'),
+            'course':  float(fields[8]) if fields[8].strip() else float('nan'),
+            'fix':     int(fields[10])  if fields[10].strip() else 0,
+        }
+    except Exception:
+        return None
+
 
 # ---------------------------------------------------------------------------
 # Node
@@ -149,6 +165,8 @@ class UM982Node(Node):
         fields   = sentence.split(',')
         msg_type = fields[0].lstrip('$')
 
+        self.get_logger().info(f'Message received: {msg_type}')
+
         if msg_type in ('GNGGA', 'GPGGA'):
             data = parse_gga(fields)
             if data:
@@ -172,6 +190,20 @@ class UM982Node(Node):
                 self._msg.heading = data['heading']
                 self._msg.pitch   = data['pitch']
                 self._msg.roll    = data['roll']
+
+        elif msg_type in ('KSXT'):
+            data = parse_ksxt(fields)
+            if data:
+                self._msg.latitude   = data['lat']
+                self._msg.longitude  = data['lon']
+                self._msg.altitude   = data['alt']
+                self._msg.speed      = data['speed']
+                self._msg.course     = data['course']
+                self._msg.heading    = data['heading']
+                self._msg.pitch      = data['pitch']
+                self._msg.roll       = data['roll']
+                self._msg.fix_quality = data['fix']
+                self._publish()
 
     def _publish(self):
         self._msg.header.stamp    = self.get_clock().now().to_msg()
