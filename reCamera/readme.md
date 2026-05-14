@@ -3,6 +3,9 @@
     The default one that it came with is flows_old.json
     The new one that exports images and bounding boxes is flow.json
 
+after opening the reCamera workspace UI, top right -> Import this flow.json
+192.168.42.1#/workspace
+
 listen.py
     Http server that waits on port 5000 for the camera to publish data
     Recieving images toggleable with --save-images flag
